@@ -1,0 +1,6 @@
+extends layout
+
+block content
+
+  div#treeContainer.container(ng-app='treeMap', ng-controller='TreeCtrl', style='height:500px;')
+    tree#treeRoot1(ng-model='tree')
