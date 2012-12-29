@@ -1,0 +1,4 @@
+{"ts":1355603126659,"silentsave":true,"restoring":false,"patch":[[{"diffs":[[1,"'use strict';\n\n\n\n"]],"start1":0,"start2":0,"length1":0,"length2":17}]],"length":17}
+{"contributors":[],"silentsave":false,"ts":1355614447858,"patch":[[{"diffs":[[0,"rict';\n\n"],[1,"var todoApp = angular.module( 'todoApp', ['todoApp.services', 'todoApp.directives']);\n"],[0,"\n\n"]],"start1":7,"start2":7,"length1":10,"length2":96}]],"length":103,"saved":false}
+{"ts":1355673947936,"patch":[[{"diffs":[[0,"ces'"],[-1,", 'todoApp.directives'"],[0,"]);\n"]],"start1":71,"start2":71,"length1":30,"length2":8}]],"length":81,"saved":false}
+{"ts":1355780039029,"patch":[[{"diffs":[[0,"todoApp."],[-1,"s"],[1,"treeS"],[0,"ervices'"]],"start1":58,"start2":58,"length1":17,"length2":21}]],"length":85,"saved":false}
