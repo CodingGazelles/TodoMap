@@ -2,5 +2,10 @@ extends layout
 
 block content
 
-  div#treeContainer.container(ng-controller='Tree', style='height:500px;')
-    tree#treeRoot1(td-node='tree')
+    label name: 
+        input(ng-model='name') 
+            br
+    pre name = {{name}}
+    
+    div.container( style='height:500px;')
+        tree(td-node='treeData')

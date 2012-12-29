@@ -1,346 +1,345 @@
-
-  exports.tree = function(req, res){
+exports.tree = function(req, res) {
 
     var tree = {
-          item: {
+        item: {
             label: "root"
-          },
-          split: 'h',
-          childNodes: [{
-              item: {
+        },
+        split: 'h',
+        childNodes: [{
+            item: {
                 label: "courses"
-              },
-              weight: 7,
-              split: 'v',
-              childNodes: [{
+            },
+            weight: 7,
+            split: 'v',
+            childNodes: [{
+                item: {
+                    label: "samedi"
+                },
+                weight: 7,
+                split: 'h',
+                childNodes: [{
                     item: {
-                      label: "samedi"
+                        label: "poulet"
                     },
                     weight: 7,
-                    split: 'h',
-                    childNodes: [{
-                        item: {
-                          label: "poulet"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    },{
-                        item: {
-                          label: "legumes"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    },{
-                        item: {
-                          label: "chocolat"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    },{
-                        item: {
-                          label: "yaourts"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    }]
-               },{
+                    childNodes: []
+                }, {
                     item: {
-                      label: "dimanche"
+                        label: "legumes"
                     },
                     weight: 7,
-                    split: 'h',
-                    childNodes: [{
-                        item: {
-                          label: "boeuf"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    },{  
-                        item: {
-                          label: "fruits"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    },{
-                        item: {
-                          label: "biscuits"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    },{
-                        item: {
-                          label: "perrier"
-                        },
-                        weight: 7,
-                        childNodes: []
-                    }]
-               }]
-          },{
-              item: {
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "chocolat"
+                    },
+                    weight: 7,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "yaourts"
+                    },
+                    weight: 7,
+                    childNodes: []
+                }]
+            }, {
+                item: {
+                    label: "dimanche"
+                },
+                weight: 7,
+                split: 'h',
+                childNodes: [{
+                    item: {
+                        label: "boeuf"
+                    },
+                    weight: 7,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "fruits"
+                    },
+                    weight: 7,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "biscuits"
+                    },
+                    weight: 7,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "perrier"
+                    },
+                    weight: 7,
+                    childNodes: []
+                }]
+            }]
+        }, {
+            item: {
                 label: "boulot"
-              },
-              weight: 17,
-              split: 'v',
-              childNodes: [{
+            },
+            weight: 17,
+            split: 'v',
+            childNodes: [{
+                item: {
+                    label: "Work Bandits"
+                },
+                weight: 12,
+                split: 'h',
+                childNodes: [{
                     item: {
-                      label: "Work Bandits"
+                        label: "Business Plan"
                     },
                     weight: 12,
-                    split: 'h',
+                    split: 'v',
                     childNodes: [{
                         item: {
-                          label: "Business Plan"
+                            label: "slide 1"
                         },
-                        weight: 12,  
-                        split: 'v',
-                        childNodes: [{
-                              item: {
-                                label: "slide 1"
-                              },
-                              weight: 4,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 2"
-                              },
-                              weight: 1,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 3"
-                              },
-                              weight: 2,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 4"
-                              },
-                              weight: 5,
-                              childNodes: []
-                         }]
-                    },{
+                        weight: 4,
+                        childNodes: []
+                    }, {
                         item: {
-                          label: "Financial Forecast"
+                            label: "slide 2"
                         },
-                         weight: 12,  
-                         split: 'v',
-                         childNodes: [{
-                              item: {
-                                label: "slide 1"
-                              },
-                              weight: 4,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 2"
-                              },
-                              weight: 1,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 3"
-                              },
-                              weight: 2,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 4"
-                              },
-                              weight: 5,
-                              childNodes: [{
-                                  item: {
-                                    label: "slide 1"
-                                  },
-                                  weight: 2,
-                                  split: 'h',
-                                  childNodes: []
-                              },{
-                                  item: {
-                                    label: "slide 2"
-                                  },
-                                  weight: 2,
-                                  split: 'h',
-                                  childNodes: []
-                              }]
-                         },{
-                              item: {
-                                label: "slide ("
-                              },
-                              weight: 2,
-                              childNodes: []
-                         },{
-                              item: {
-                                label: "slide 6"
-                              },
-                              weight: 5,
-                              childNodes: []
-                         }]
+                        weight: 1,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "slide 3"
+                        },
+                        weight: 2,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "slide 4"
+                        },
+                        weight: 5,
+                        childNodes: []
                     }]
-               },{
-                    label: "White CRM",
+                }, {
                     item: {
-                      label: "slide 6"
+                        label: "Financial Forecast"
                     },
-                    weight: 5,
-                    split: 'h',
+                    weight: 12,
+                    split: 'v',
                     childNodes: [{
                         item: {
-                          label: "Marketing Plan"
+                            label: "slide 1"
                         },
                         weight: 4,
                         childNodes: []
-                    },{
+                    }, {
                         item: {
-                          label: "Dev Plan"
+                            label: "slide 2"
                         },
-                        weight: 4,
+                        weight: 1,
                         childNodes: []
-                    },{
+                    }, {
                         item: {
-                          label: "Strat Plan"
+                            label: "slide 3"
                         },
-                        weight: 4,
-                        split: 'v',
+                        weight: 2,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "slide 4"
+                        },
+                        weight: 5,
                         childNodes: [{
                             item: {
-                              label: "Plan 1"
+                                label: "slide 1"
                             },
-                            weight: 4,
+                            weight: 2,
+                            split: 'h',
                             childNodes: []
-                        },{
+                        }, {
                             item: {
-                              label: "Plan 2"
+                                label: "slide 2"
                             },
-                            weight: 4,
-                            childNodes: []
-                        }]
-                    },{
-                        item: {
-                              label: "Job Plan"
-                            },
-                         weight: 4,
-                         childNodes: []
-                    },{
-                        item: {
-                              label: "Tech Plan"
-                            },
-                         weight: 4,
-                         split: 'v',
-                         childNodes: [{
-                            item: {
-                              label: "Plan 1"
-                            },
-                             weight: 4,
-                             childNodes: []
-                        },{
-                            item: {
-                              label: "Plan 2"
-                            },
-                            weight: 4,
-                            childNodes: []
-                        },{
-                            item: {
-                              label: "Plan 3"
-                            },
-                            weight: 4,
+                            weight: 2,
+                            split: 'h',
                             childNodes: []
                         }]
+                    }, {
+                        item: {
+                            label: "slide ("
+                        },
+                        weight: 2,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "slide 6"
+                        },
+                        weight: 5,
+                        childNodes: []
                     }]
-               }]
-          },{
-              item: {
+                }]
+            }, {
+                label: "White CRM",
+                item: {
+                    label: "slide 6"
+                },
+                weight: 5,
+                split: 'h',
+                childNodes: [{
+                    item: {
+                        label: "Marketing Plan"
+                    },
+                    weight: 4,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "Dev Plan"
+                    },
+                    weight: 4,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "Strat Plan"
+                    },
+                    weight: 4,
+                    split: 'v',
+                    childNodes: [{
+                        item: {
+                            label: "Plan 1"
+                        },
+                        weight: 4,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "Plan 2"
+                        },
+                        weight: 4,
+                        childNodes: []
+                    }]
+                }, {
+                    item: {
+                        label: "Job Plan"
+                    },
+                    weight: 4,
+                    childNodes: []
+                }, {
+                    item: {
+                        label: "Tech Plan"
+                    },
+                    weight: 4,
+                    split: 'v',
+                    childNodes: [{
+                        item: {
+                            label: "Plan 1"
+                        },
+                        weight: 4,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "Plan 2"
+                        },
+                        weight: 4,
+                        childNodes: []
+                    }, {
+                        item: {
+                            label: "Plan 3"
+                        },
+                        weight: 4,
+                        childNodes: []
+                    }]
+                }]
+            }]
+        }, {
+            item: {
                 label: "City"
-              },
-              weight: 17,
-              split: 'v',
-              childNodes: [{
-                  item: {
+            },
+            weight: 17,
+            split: 'v',
+            childNodes: [{
+                item: {
                     label: "San Diego"
-                  },
-                  weight: 4,
-                  childNodes: []
-              },{
-                  item: {
+                },
+                weight: 4,
+                childNodes: []
+            }, {
+                item: {
                     label: "Epinay"
-                  },
-                  weight: 4,
-                  childNodes: []
-              },{
-                  item: {
+                },
+                weight: 4,
+                childNodes: []
+            }, {
+                item: {
                     label: "Paris"
-                  },
-                  weight: 4,
-                  split: 'h',
-                  childNodes: [{
-                      item: {
+                },
+                weight: 4,
+                split: 'h',
+                childNodes: [{
+                    item: {
                         label: "Blomet"
-                      },
-                      weight: 4,
-                      childNodes: []
-                  },{
-                      item: {
+                    },
+                    weight: 4,
+                    childNodes: []
+                }, {
+                    item: {
                         label: "Tracy"
-                      },
-                      weight: 4,
-                      childNodes: []
-                  },{
-                      item: {
+                    },
+                    weight: 4,
+                    childNodes: []
+                }, {
+                    item: {
                         label: "Réaumur"
-                      },
-                      weight: 4,
-                      childNodes: []
-                  },{
-                      item: {
+                    },
+                    weight: 4,
+                    childNodes: []
+                }, {
+                    item: {
                         label: "Vaugirard"
-                      },
-                      weight: 4,
-                      childNodes: []
-                  }]
-              },{
-                  item: {
+                    },
+                    weight: 4,
+                    childNodes: []
+                }]
+            }, {
+                item: {
                     label: "Londres"
-                  },
-                  weight: 4,
-                  childNodes: []
-              },{
-                  item: {
+                },
+                weight: 4,
+                childNodes: []
+            }, {
+                item: {
                     label: "Bangkok"
-                  },
-                  weight: 4,
-                  childNodes: []
-              }]
-          },{
-              item: {
+                },
+                weight: 4,
+                childNodes: []
+            }]
+        }, {
+            item: {
                 label: "People"
-              },
-              weight: 17,
-              split: 'v',
-              childNodes: [{
-                  item: {
+            },
+            weight: 17,
+            split: 'v',
+            childNodes: [{
+                item: {
                     label: "John"
-                  },
-                  weight: 4,
-                  childNodes: []
-              },{
-                  item: {
+                },
+                weight: 4,
+                childNodes: []
+            }, {
+                item: {
                     label: "Kiko"
-                  },
-                  weight: 4,
-                  childNodes: []
-              },{
-                  item: {
+                },
+                weight: 4,
+                childNodes: []
+            }, {
+                item: {
                     label: "Inigo"
-                  },
-                  weight: 4,
-                  childNodes: []
-              },{
-                  item: {
+                },
+                weight: 4,
+                childNodes: []
+            }, {
+                item: {
                     label: "Cuesta"
-                  },
-                  weight: 4,
-                  childNodes: []
-              }]
-          }]
-      };
-      res.json(tree);
+                },
+                weight: 4,
+                childNodes: []
+            }]
+        }]
     };
+    res.json(tree);
+};

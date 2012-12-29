@@ -2,88 +2,142 @@
 
 /* Directives */
 
-//angular.module('todoApp.directives', []).
-todoApp.directive('tree', function treeFactory($compile) {
+todoApp.directive('tree', function($compile) {
     return {
+        restrict: 'E',
+        terminal: true,
         scope: {
             node: '=tdNode'
         },
-        replace: true,
-        template:
-            '<div class="tree-head {{node.split}}">' +
-                '<nodeList td-node-list="{{node.childNodes}}" td-split="{{node.split}}"></nodeList>' +
-            '</div>',
-        compile: function compileTree(tElement, attrs){
-            console.log("call function compile of directive tree");
-
-            return function linkTree(scope, iElement, attrs) {
-                console.log("call function link of directive tree: " + attrs.ngModel);
-
-                function updateTree() {
-                    console.log("call function updateTree: " + attrs.ngModel);
-                    var childScope;
-                    var node = scope.$eval(attrs.ngModel);
-                    var collection = node.childNodes;
-                    var split = node.split;
-                    if (!collection) return;
-                    for (var i = 0; i < collection.length; i++) {
-                        childScope = scope.$new();
-                        childScope.node = collection[i];
-                        childScope.split = split;
-                        iElement.append($compile('<node td-node="node" td-split="split" class="node"></node>')(childScope));
-                    };
+        template: '<div class="tree-head"></div>',
+        replace : true,
+        link: function linkTree(scope, iElement, iAttrs) {
+            console.log("call function link of directive tree");
+            
+            function updateTree() {
+                console.log("call function updateTree");
+                
+                if (angular.isArray(scope.node.childNodes)) {
+                    iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>');
                 }
-                scope.$parent.$watch(attrs.ngModel, function(value) {
-                    console.log("call callback function of $watch rootnode: " + attrs.ngModel);
-                    if (value) updateTree();
-                }, true);
+                $compile(iElement.contents())(scope.$new());
             }
-        }
 
-    }
-}).directive('nodeList', function nodeListFactory($compile){
-    return {
-        scope: {
-            nodeList: '=tdNodeList',
-            split: 'tdSplit'
-        },
-        replace: true,
-        template: '',
-        compile: function compileNodeList(tElement, attrs){
-            console.log("call function compile of directive nodeList");
-            
-            for (var i = 0; i < nodeList.length; i++) {
-                tElement.append($compile('<node td-node="node" class="node {{split}}" style="width:{{node.width}};height:{{node.height}}"></node>')(childScope));
-            };
-            
-            return function linkNodeList(scope, iElement, attrs) {
-                console.log("call function link of directive nodeList");
-            
-            }
+            scope.$watch( 'node', function watchTree(newValue, oldValue) {
+                console.log("call watch callback");
+                if ( newValue !== oldValue) updateTree();
+            }, true);
         }
-    }
-}).directive('node', function nodeFactory($compile) {
+    };
+});
+
+todoApp.directive('node', function nodeFactory($compile) {
     return {
+        restrict: 'E',
+        terminal: true,
         scope: {
             node: '=tdNode',
             split: '=tdSplit'
         },
+        template: '<div class="node"></div>',
         replace: true,
-        template:
-            '<div style="background-color:{{node.bgcolor}}">' +
-                '<div class="item {{split}}" style="width:{{node.width}};height:{{node.height}}">• {{node.item.label}}</div>' +
-                '<nodeList td-node-list="{{node.childNodes}}" td-split="{{node.split}}"></nodeList>' +
-            '</div>',
-        compile: function compileNode(tElement, attrs) {
-            console.log("call function compile of directive node");
-
-            return function linkNode(scope, iElement, attrs) {
-                console.log("call function link of directive node");
-
+        link: function(scope, iElement, attrs) {
+            console.log("call function link of directive node");
+            
+            iElement.addClass( scope.split);
+            iElement.css( 'background-color', scope.node.bgcolor);
+            
+            iElement.append(
+                '<div class="item {{node.split}}" style="width:{{node.width}};height:{{node.height}}">• {{node.item.label}}</div>'
+            );
+                
+            if (angular.isArray(scope.node.childNodes)) {
+                iElement.append('<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>');
             }
+            
+            $compile(iElement.contents())(scope.$new());
         }
-    }
-})
+    };
+});
+
+        //        template:
+        //            '<div class="tree-head">' +
+        //                //'<list td-node-list="node.childNodes" td-split="node.split"></list>' +
+        //                '<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>' +
+        //            '</div>'
+        //        link: function linkTree(scope, iElement, iAttrs) {
+        //            console.log("call function link of directive tree");
+        //        }
+
+        //        compile: function compileTree(tElement, tAttrs, transclude){
+        //            console.log("call function compile of directive tree");
+        //            
+        //            $compile( tElement);
+        //
+        //            return function linkTree(scope, iElement, iAttrs) {
+        //                console.log("call function link of directive tree");
+        //
+        ////                function updateTree() {
+        ////                    console.log("call function updateTree: " + iAttrs.ngModel);
+        ////                    var childScope;
+        ////                    var node = scope.$eval(iAttrs.ngModel);
+        ////                    var collection = node.childNodes;
+        ////                    var split = node.split;
+        ////                    if (!collection) return;
+        ////                    for (var i = 0; i < collection.length; i++) {
+        ////                        childScope = scope.$new();
+        ////                        childScope.node = collection[i];
+        ////                        childScope.split = split;
+        ////                        iElement.append($compile('<node td-node="node" td-split="split" class="node"></node>')(childScope));
+        ////                    };
+        ////                }
+        ////                scope.$parent.$watch(iAttrs.ngModel, function(value) {
+        ////                    console.log("call callback function of $watch rootnode: " + iAttrs.ngModel);
+        ////                    if (value) updateTree();
+        ////                }, true);
+        //            }
+        //        }
+
+
+
+//todoApp.directive('list', function nodeListFactory($compile) {
+//    return {
+//        restrict: 'E',
+//        scope: {
+//            nodeList: '=tdNodeList',
+//            split: '=tdSplit'
+//        },
+//        replace: true,
+//        template: '<node ng-repeat="node in nodeList" td-node="node"></node>'
+//    }
+//});
+        //        compile: function compileNodeList(tElement, tAttrs){
+        //            console.log("call function compile of directive nodeList");
+        //            
+        ////            for (var i = 0; i < nodeList.length; i++) {
+        ////                tElement.append('<node td-node="node" class="node {{split}}" style="width:{{node.width}};height:{{node.height}}"></node>');
+        ////            };
+        ////            $compile(tElement);
+        //            
+        //            return function linkNodeList(scope, iElement, attrs) {
+        //                console.log("call function link of directive nodeList");
+        //            
+        //            }
+        //        }
+        
+
+
+
+            
+        //        compile: function compileNode(tElement, attrs) {
+        //            console.log("call function compile of directive node");
+        //
+        //            return function linkNode(scope, iElement, attrs) {
+        //                console.log("call function link of directive node");
+        //
+        //            }
+        //        }
+
 //.directive('nodeOld', function($compile) {
 //    return {
 //        restrict: 'E',
@@ -146,4 +200,4 @@ todoApp.directive('tree', function treeFactory($compile) {
 //     // }
 //   }
 // })
-;
+

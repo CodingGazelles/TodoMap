@@ -2,10 +2,10 @@
 
 /* Services */
 
-angular.module( 'todoApp.services', ['ngResource']).
-factory('Tree', function($resource) {
-    var Tree = $resource('/api/tree', {}, {
+angular.module( 'todoApp.treeServices', ['ngResource'])
+.factory('Tree', function($resource) {
+    var tree = $resource('/api/tree', {}, {
         get: {method: 'GET'}
     });
-    return Tree;
+    return tree;
 });

@@ -4,6 +4,8 @@
 
 todoApp.controller('Tree', function($scope, Tree) {
     console.log("call function Tree");
+    
+    $scope.treeData = {};
     Tree.get({},
 
     function(data) { // SUCCESS
@@ -11,14 +13,14 @@ todoApp.controller('Tree', function($scope, Tree) {
         calChildrenWeight(data);
         calRelativeWeight(data);
         colorize(data);
-        $scope.tree = data;
+        $scope.treeData = data;
         // console.log("$scope.tree: " + JSON.stringify( $scope.tree));
     },
 
     function(data) { // FAILURE
         console.log("call api Tree.get failed");
         console.log("data: " + data);
-        $scope.tree = {
+        $scope.treeData = {
             label: "error",
             childNodes: []
         };
