@@ -1,3 +1,5 @@
+//TODO: remove file
+
 exports.tree = function(req, res) {
 
     var tree = {
@@ -163,7 +165,7 @@ exports.tree = function(req, res) {
                         }]
                     }, {
                         item: {
-                            label: "slide ("
+                            label: "slide 5"
                         },
                         weight: 2,
                         childNodes: []

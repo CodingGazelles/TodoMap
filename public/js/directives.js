@@ -2,20 +2,20 @@
 
 /* Directives */
 
-todoApp.directive('tree', function($compile) {
+todoApp.directive('map', function($compile) {
     return {
         restrict: 'E',
         terminal: true,
         scope: {
             node: '=tdNode'
         },
-        template: '<div class="tree-head"></div>',
+        template: '<div class="head"></div>',
         replace : true,
-        link: function linkTree(scope, iElement, iAttrs) {
-            console.log("call function link of directive tree");
+        link: function linkMap(scope, iElement, iAttrs) {
+            console.log("call function link of directive map");
             
-            function updateTree() {
-                console.log("call function updateTree");
+            function updateMap() {
+                console.log("call function updateMap");
                 
                 if (angular.isArray(scope.node.childNodes)) {
                     iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>');
@@ -23,9 +23,9 @@ todoApp.directive('tree', function($compile) {
                 $compile(iElement.contents())(scope.$new());
             }
 
-            scope.$watch( 'node', function watchTree(newValue, oldValue) {
+            scope.$watch( 'node', function watchMap(newValue, oldValue) {
                 console.log("call watch callback");
-                if ( newValue !== oldValue) updateTree();
+                if ( newValue !== oldValue) updateMap();
             }, true);
         }
     };
@@ -48,7 +48,7 @@ todoApp.directive('node', function nodeFactory($compile) {
             iElement.css( 'background-color', scope.node.bgcolor);
             
             iElement.append(
-                '<div class="item {{node.split}}" style="width:{{node.width}};height:{{node.height}}">• {{node.item.label}}</div>'
+                '<div class="item {{node.split}}" style="width:{{node.width}};height:{{node.height}}">{{node.item.label}}</div>'
             );
                 
             if (angular.isArray(scope.node.childNodes)) {

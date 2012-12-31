@@ -5,10 +5,11 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , api = require('./routes/api')
-  , directives = require('./routes/directives')
+  , maps = require('./routes/api/maps')
   , http = require('http')
   , path = require('path');
+
+
 
 var app = express();
 
@@ -35,18 +36,17 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+
 // Routes
 
 app.get('/', routes.index);
 
-// Directives
-
-app.get('/directives/node', directives.node);
-app.get('/directives/childNodes', directives.childNodes);
 
 // JSON API
 
-app.get('/api/tree', api.tree);
+//app.get('/api/tree', api.tree);     //TODO: remove line
+app.get('/api/maps/:id', maps.findById);
+app.put('/api/maps/:id', maps.updateById);
 
 // Start server
 

@@ -2,29 +2,29 @@
 
 /* Controllers */
 
-todoApp.controller('Tree', function($scope, Tree) {
-    console.log("call function Tree");
+todoApp.controller('MapCtrl', function($scope, maps) {
+    console.log("call controller Map");
     
-    $scope.treeData = {};
-    Tree.get({},
+    $scope.mapData = {};
+    maps.getMap({id: "50e0cd2907de06fa72000001"},
 
     function(data) { // SUCCESS
-        console.log("call api Tree.get succeed");
+        console.log("call api maps.getMap succeed");
         calChildrenWeight(data);
         calRelativeWeight(data);
         colorize(data);
-        $scope.treeData = data;
-        // console.log("$scope.tree: " + JSON.stringify( $scope.tree));
+        $scope.mapData = data;
+        // console.log("$scope.mapData: " + JSON.stringify( $scope.tree));
     },
 
     function(data) { // FAILURE
-        console.log("call api Tree.get failed");
+        console.log("call api maps.getMap failed");
         console.log("data: " + data);
-        $scope.treeData = {
+        $scope.mapData = {
             label: "error",
             childNodes: []
         };
-        console.log("$scope.tree: " + JSON.stringify($scope.tree));
+        console.log("$scope.mapData: " + JSON.stringify($scope.tree));
     });
 });
 
