@@ -14,7 +14,7 @@ todoApp.controller('MapCtrl', function($scope, maps) {
         calRelativeWeight(data);
         colorize(data);
         $scope.mapData = data;
-        // console.log("$scope.mapData: " + JSON.stringify( $scope.tree));
+        //console.log("$scope.mapData: " + JSON.stringify( data));
     },
 
     function(data) { // FAILURE

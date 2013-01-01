@@ -28,6 +28,7 @@ db.open(function(err, db) {
 });
 
 
+
 exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('Retrieving map: ' + id);

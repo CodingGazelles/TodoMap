@@ -1,11 +1,7 @@
 extends layout
 
 block content
-
-    label name: 
-        input(ng-model='name') 
-            br
-    pre name = {{name}}
     
-    div.container( style='height:500px;')
-        map(td-node='mapData')
+    div.row-fluid
+        div.span10.offset1.show-border( style='height:500px;')
+            map(td-node='mapData')

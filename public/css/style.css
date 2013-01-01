@@ -3,7 +3,7 @@
   margin: 0px;
   padding: 0px;
 }
-.treeRoot {
+.top-node {
   width: 100%;
   height: 100%;
 }
@@ -14,9 +14,6 @@
 .v {
   display: block;
 }
-.ng-scope {
+.show-border {
   border: 1px solid red;
-}
-.ng-binding {
-  border: 1px solid blue;
 }

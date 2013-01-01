@@ -9,7 +9,7 @@ todoApp.directive('map', function($compile) {
         scope: {
             node: '=tdNode'
         },
-        template: '<div class="head"></div>',
+        template: '<div class="top-node"></div>',
         replace : true,
         link: function linkMap(scope, iElement, iAttrs) {
             console.log("call function link of directive map");
@@ -46,10 +46,21 @@ todoApp.directive('node', function nodeFactory($compile) {
             
             iElement.addClass( scope.split);
             iElement.css( 'background-color', scope.node.bgcolor);
+            if( scope.split == 'h'){
+                iElement.css( 'width', scope.node.relatWeight);
+                iElement.css( 'height', '100%');
+            } else if(scope.split == 'v'){
+                iElement.css( 'width', '100%');
+                iElement.css( 'height', scope.node.relatWeight);
+            }
             
-            iElement.append(
-                '<div class="item {{node.split}}" style="width:{{node.width}};height:{{node.height}}">{{node.item.label}}</div>'
-            );
+            var item = angular.element('<div class="item {{node.split}}">{{node.item.label}}</div>');
+//            if( scope.node.split == 'h'){
+//                item.css( 'width', scope.node.relatWeight);
+//            }else if ( scope.node.split == 'v'){
+//                item.css( 'height', scope.node.relatWeight);
+//            }
+            iElement.append(item);
                 
             if (angular.isArray(scope.node.childNodes)) {
                 iElement.append('<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>');
