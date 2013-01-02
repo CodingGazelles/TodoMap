@@ -63,7 +63,11 @@ todoApp.directive('node', function nodeFactory($compile) {
             iElement.append(item);
                 
             if (angular.isArray(scope.node.childNodes)) {
-                iElement.append('<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>');
+                iElement.append(
+                    '<div class="childNodes">' +
+                    '<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>' +
+                    '</div>'
+                    );
             }
             
             $compile(iElement.contents())(scope.$new());
