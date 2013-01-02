@@ -18,7 +18,7 @@ todoApp.directive('map', function($compile) {
                 console.log("call function updateMap");
                 
                 if (angular.isArray(scope.node.childNodes)) {
-                    iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>');
+                    iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child"></node>');
                 }
                 $compile(iElement.contents())(scope.$new());
             }
@@ -36,8 +36,7 @@ todoApp.directive('node', function nodeFactory($compile) {
         restrict: 'E',
         terminal: true,
         scope: {
-            node: '=tdNode',
-            split: '=tdSplit'
+            node: '=tdNode'
         },
         template: '<div class="node"></div>',
         replace: true,
@@ -46,26 +45,13 @@ todoApp.directive('node', function nodeFactory($compile) {
             
             iElement.addClass( scope.split);
             iElement.css( 'background-color', scope.node.bgcolor);
-            if( scope.split == 'h'){
-                iElement.css( 'width', scope.node.relatWeight);
-                iElement.css( 'height', '100%');
-            } else if(scope.split == 'v'){
-                iElement.css( 'width', '100%');
-                iElement.css( 'height', scope.node.relatWeight);
-            }
             
-            var item = angular.element('<div class="item {{node.split}}">{{node.item.label}}</div>');
-//            if( scope.node.split == 'h'){
-//                item.css( 'width', scope.node.relatWeight);
-//            }else if ( scope.node.split == 'v'){
-//                item.css( 'height', scope.node.relatWeight);
-//            }
-            iElement.append(item);
+            iElement.append( angular.element('<div class="leaf">{{node.label}}</div>'));
                 
             if (angular.isArray(scope.node.childNodes)) {
                 iElement.append(
                     '<div class="childNodes">' +
-                    '<node ng-repeat="child in node.childNodes" td-node="child" td-split="node.split"></node>' +
+                    '<node ng-repeat="child in node.childNodes" td-node="child"></node>' +
                     '</div>'
                     );
             }
