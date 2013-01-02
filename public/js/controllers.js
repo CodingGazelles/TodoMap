@@ -6,7 +6,7 @@ todoApp.controller('MapCtrl', function($scope, maps) {
     console.log("call controller Map");
     
     $scope.mapData = {};
-    maps.getMap({id: "50e0cd2907de06fa72000001"},
+    maps.getMap({id: "50e4ad430abcd7f031000001"},
 
     function(data) { // SUCCESS
         console.log("call api maps.getMap succeed");
@@ -58,12 +58,21 @@ function colorize(tree, hsvColor, hueVar) {
 }
 
 function calChildrenWeight(tree) {
-    if (tree.weight === undefined) tree.weight = 0;
-    if (tree.childrenWeight === undefined) tree.childrenWeight = 0;
+    //if (tree.weight === undefined) tree.weight = 0;
+    //if (tree.childrenWeight === undefined) tree.childrenWeight = 0;
+    
+    tree.forEach( function(node){
+        calChildrenWeight(node.childNodes);
+        node.childrenWeight += 
+    });
+    
     for (var i = 0; i < tree.childNodes.length; i++) {
         calChildrenWeight(tree.childNodes[i]);
         tree.childrenWeight += tree.childNodes[i].weight + tree.childNodes[i].childrenWeight;
+        if( tree.childNodes[i].weight)
+            tree.childrenWeight += tree.childNodes[i].weight;
     }
+    
 }
 
 function calRelativeWeight(tree, totLevelWeight) {

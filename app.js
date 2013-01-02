@@ -44,7 +44,6 @@ app.get('/', routes.index);
 
 // JSON API
 
-//app.get('/api/tree', api.tree);     //TODO: remove line
 app.get('/api/maps/:id', maps.findById);
 app.put('/api/maps/:id', maps.updateById);
 
