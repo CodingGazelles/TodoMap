@@ -7,25 +7,26 @@ todoApp.controller('MapCtrl', function($scope, maps) {
     
     $scope.mapData = {};
     maps.getMap({id: "50e4ad430abcd7f031000001"},
-
-    function(data) { // SUCCESS
-        console.log("call api maps.getMap succeed");
-        weighChildNodes(data);
-        scaleNodeWeight(data);
-        //colorize(data);
-        $scope.mapData = data;
-        console.log("$scope.mapData: " + JSON.stringify( data));
-    },
-
-    function(data) { // FAILURE
-        console.log("call api maps.getMap failed");
-        console.log("data: " + data);
-        $scope.mapData = {
-            label: "error",
-            childNodes: []
-        };
-        console.log("$scope.mapData: " + JSON.stringify($scope.tree));
-    });
+	
+	    function(data) { // SUCCESS
+	        console.log("call api maps.getMap succeed");
+	        weighChildNodes(data);
+	        scaleNodeWeight(data);
+	        //colorize(data);
+	        $scope.mapData = data;
+	        //console.log("$scope.mapData: " + JSON.stringify( data));
+	    },
+		
+	    function(data) { // FAILURE
+	        console.log("call api maps.getMap failed");
+	        console.log("data: " + data);
+	        $scope.mapData = {
+	            label: "error",
+	            childNodes: []
+	        };
+	        console.log("$scope.mapData: " + JSON.stringify( data));
+	    }
+    );
 });
 
 function colorize(tree, hsvColor, hueVar) {

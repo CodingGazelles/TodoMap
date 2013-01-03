@@ -2,7 +2,7 @@
 
 /* Directives */
 
-todoApp.directive('map', function($compile) {
+todoApp.directive('map', function mapFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
@@ -13,6 +13,8 @@ todoApp.directive('map', function($compile) {
         replace : true,
         link: function linkMap(scope, iElement, iAttrs) {
             console.log("call function link of directive map");
+            
+            console.log("iElement: " + JSON.stringify( iElement[0].getBoundingClientRect()));
             
             function updateMap() {
                 console.log("call function updateMap");
@@ -61,3 +63,9 @@ todoApp.directive('node', function nodeFactory($compile) {
     };
 });
 
+function worst(nodeArray, length){
+	nodeArray.sort( function( a, b){
+		return b.weight - a.weight;
+	};
+	var mx = 
+}
