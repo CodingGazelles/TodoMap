@@ -11,7 +11,7 @@ todoApp.controller('MapCtrl', function($scope, maps) {
     function(data) { // SUCCESS
         console.log("call api maps.getMap succeed");
         weighChildNodes(data);
-        scaleNodeWeight(data);
+        scaleBranchWeight(data);
         //colorize(data);
         $scope.mapData = data;
         console.log("$scope.mapData: " + JSON.stringify( data));
@@ -61,23 +61,22 @@ function weighChildNodes(node) {
     node.childNodesWeight = 0;
     if( node.childNodes !== undefined && node.childNodes.length !== 0){
         node.childNodes.forEach( function(child){
-            if( child.childNodes !== undefined && child.childNodes.length !== 0)
-                weighChildNodes(child.childNodes);
+            weighChildNodes(child);
                 
             node.childNodesWeight += child.weight + child.childNodesWeight;
         });
     }
 }
 
-function scaleNodeWeight(node, siblingNodesWeight) {
+function scaleBranchWeight(node, siblingNodesWeight) {
     if (siblingNodesWeight === undefined) 
-        siblingNodesWeight = node.weight + node.childrenWeight;
+        siblingNodesWeight = node.weight + node.childNodesWeight;
     
-    node.weightScale = ((node.weight + node.childNodesWeight) / siblingNodesWeight * 100).toFixed(1) + "%";
+    node.weightScale = ((node.weight + node.childNodesWeight) / siblingNodesWeight * 100).toFixed(3) + "%";
     
     if( node.childNodes !== undefined && node.childNodes.length !== 0){
         node.childNodes.forEach( function( child){
-            scaleNodeWeight( child, node.childNodesWeight);
+            scaleBranchWeight( child, node.childNodesWeight);
         })
     }
 }

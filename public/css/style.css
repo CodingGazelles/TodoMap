@@ -11,6 +11,10 @@
   width: 100%;
   height: 100%;
 }
+.terminal-node {
+  width: 100%;
+  height: 100%;
+}
 .h {
   display: inline-block;
   vertical-align: top;
