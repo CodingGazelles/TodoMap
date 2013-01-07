@@ -1,0 +1,59 @@
+[{
+    "childNodes": [{
+        "childNodes": [{
+            "label": "poulet",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }, {
+            "label": "legumes",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }, {
+            "label": "chocolat",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }, {
+            "label": "yaourts",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }],
+        "label": "samedi",
+        "weight": 1,
+        "childNodesWeight": 28,
+        "weightScale": "50.000%"
+    }, {
+        "childNodes": [{
+            "label": "boeuf",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }, {
+            "label": "fruits",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }, {
+            "label": "biscuits",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }, {
+            "label": "perrier",
+            "weight": 7,
+            "childNodesWeight": 0,
+            "weightScale": "25.000%"
+        }],
+        "label": "dimanche",
+        "weight": 1,
+        "childNodesWeight": 28,
+        "weightScale": "50.000%"
+    }],
+    "label": "courses",
+    "weight": 1,
+    "childNodesWeight": 58,
+    "weightScale": "32.778%"
+}]

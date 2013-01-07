@@ -4,9 +4,11 @@
 
 todoApp.controller('MapCtrl', function($scope, maps) {
     console.log("call controller Map");
-    
+
     $scope.mapData = {};
-    maps.getMap({id: "50e4ad430abcd7f031000001"},
+    maps.getMap({
+        id: "50e4ad430abcd7f031000001"
+    },
 
     function(data) { // SUCCESS
         console.log("call api maps.getMap succeed");
@@ -14,7 +16,7 @@ todoApp.controller('MapCtrl', function($scope, maps) {
         scaleBranchWeight(data);
         //colorize(data);
         $scope.mapData = data;
-        console.log("$scope.mapData: " + JSON.stringify( data));
+        //console.log("$scope.mapData: " + JSON.stringify(data));
     },
 
     function(data) { // FAILURE
@@ -24,8 +26,9 @@ todoApp.controller('MapCtrl', function($scope, maps) {
             label: "error",
             childNodes: []
         };
-        console.log("$scope.mapData: " + JSON.stringify($scope.tree));
+        console.log("$scope.mapData: " + JSON.stringify(data));
     });
+
 });
 
 function colorize(tree, hsvColor, hueVar) {
@@ -59,24 +62,23 @@ function colorize(tree, hsvColor, hueVar) {
 
 function weighChildNodes(node) {
     node.childNodesWeight = 0;
-    if( node.childNodes !== undefined && node.childNodes.length !== 0){
-        node.childNodes.forEach( function(child){
+    if (node.childNodes !== undefined && node.childNodes.length !== 0) {
+        node.childNodes.forEach(function(child) {
             weighChildNodes(child);
-                
+
             node.childNodesWeight += child.weight + child.childNodesWeight;
         });
     }
 }
 
 function scaleBranchWeight(node, siblingNodesWeight) {
-    if (siblingNodesWeight === undefined) 
-        siblingNodesWeight = node.weight + node.childNodesWeight;
-    
-    node.weightScale = ((node.weight + node.childNodesWeight) / siblingNodesWeight * 100).toFixed(3) + "%";
-    
-    if( node.childNodes !== undefined && node.childNodes.length !== 0){
-        node.childNodes.forEach( function( child){
-            scaleBranchWeight( child, node.childNodesWeight);
+    if (siblingNodesWeight === undefined) siblingNodesWeight = node.weight + node.childNodesWeight;
+
+    node.weightScale = ((node.weight + node.childNodesWeight) / siblingNodesWeight).toFixed(3) ;
+
+    if (node.childNodes !== undefined && node.childNodes.length !== 0) {
+        node.childNodes.forEach(function(child) {
+            scaleBranchWeight(child, node.childNodesWeight);
         })
     }
 }
