@@ -3,32 +3,33 @@
   margin: 0px;
   padding: 0px;
 }
-.node {
+.td-node {
   position: absolute;
   width: 100%;
   height: 100%;
 }
-.top-node {
+.td-top-node {
   position: absolute;
   width: 100%;
   height: 100%;
 }
-.childNodes {
+.td-child-nodes {
   position: absolute;
   width: 100%;
   height: 100%;
 }
-.terminal-node {
+.td-terminal-node {
+  position: absolute;
   width: 100%;
   height: 100%;
 }
-.h {
+.td-h {
   display: inline-block;
   vertical-align: top;
 }
-.v {
+.td-v {
   display: block;
 }
-.show-border {
+.td-show-border {
   border: 1px solid red;
 }

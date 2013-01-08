@@ -9,27 +9,33 @@ todoApp.directive('map', function($compile) {
         scope: {
             node: '=tdNode'
         },
-        template: '<div class="top-node"></div>',
+        template: '<div class="td-top-node"></div>',
         replace : true,
         link: function linkMap(scope, iElement, iAttrs) {
             console.log("call function link of directive map");
             
+            //iElement.bind( 'resize', updateMap());        // TODO: ne fonctionne pas, revoir
+            
             function updateMap() {
                 console.log("call function updateMap");
                 
-                // start squarifying
-                var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
-                mapBuilder.squarify();
-                
-                if (angular.isArray(scope.node.childNodes)) {
-                    iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child"></node>');
+                if( scope.node.label !== undefined){
+                    // start squarifying
+                    var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
+                    mapBuilder.squarify();
+                    
+                    if (angular.isArray(scope.node.childNodes)) {
+                        iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child"></node>');
+                    }
+                    $compile(iElement.contents())(scope.$new());
                 }
-                $compile(iElement.contents())(scope.$new());
             }
             
             scope.$watch( function(){ return scope.node.label}, function watchMap(newValue, oldValue) {
                 console.log("call watch callback");
-                if ( newValue !== oldValue) updateMap();
+                if ( newValue !== oldValue){
+                    updateMap();
+                }
             }, true);
         }
     };
@@ -42,7 +48,7 @@ todoApp.directive('node', function nodeFactory($compile) {
         scope: {
             node: '=tdNode'
         },
-        template: '<div class="node"></div>',
+        template: '<div class="td-node"></div>',
         replace: true,
         link: function(scope, iElement, attrs) {
             console.log("call function link of directive node");
@@ -57,18 +63,21 @@ todoApp.directive('node', function nodeFactory($compile) {
             
             if (angular.isArray(scope.node.childNodes)) {
                 
+                iElement.append( '<div class="td-label">{{node.label}}</div>');
+                
+                var cNodesElement = angular.element( '<div class="td-child-nodes"></div>');
+                iElement.append( cNodesElement);
+                
+                cNodesElement.append( '<node ng-repeat="child in node.childNodes" td-node="child"></node>');
+                
                 // start squarifying
-                var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
+                var mapBuilder = new MapBuilder(scope.node.childNodes, cNodesElement);
                 mapBuilder.squarify();
                 
-                iElement.append( '<div class="node">{{node.label}}</div>');
-                iElement.append(
-                    '<div class="childNodes">' +
-                    '<node ng-repeat="child in node.childNodes" td-node="child"></node>' +
-                    '</div>'
-                );
+                
+                
             }else{
-                iElement.append( angular.element('<div class="terminal-node">{{node.label}}</div>'));
+                iElement.append( angular.element('<div class="td-terminal-node">{{node.label}}</div>'));
             }
             
             $compile(iElement.contents())(scope.$new());
