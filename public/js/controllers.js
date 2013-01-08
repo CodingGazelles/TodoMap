@@ -14,7 +14,7 @@ todoApp.controller('MapCtrl', function($scope, maps) {
         console.log("call api maps.getMap succeed");
         weighChildNodes(data);
         scaleBranchWeight(data);
-        //colorize(data);
+        colorize(data);
         $scope.mapData = data;
         //console.log("$scope.mapData: " + JSON.stringify(data));
     },
@@ -31,7 +31,11 @@ todoApp.controller('MapCtrl', function($scope, maps) {
 
 });
 
+//function colorizeNodes(nodes, )
+
 function colorize(tree, hsvColor, hueVar) {
+    if( tree.childNodes === undefined)
+        return;
     if (hueVar === undefined) hueVar = 360;
     if (hsvColor === undefined) hsvColor = {
         h: 0,
@@ -51,7 +55,8 @@ function colorize(tree, hsvColor, hueVar) {
             s: color.s,
             v: color.v
         };
-        tree.childNodes[i].bgcolor = tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
+        tree.childNodes[i].style={};
+        tree.childNodes[i].style.bgcolor = tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
         colorize(tree.childNodes[i], {
             h: color.h,
             s: color.s * 0.65,

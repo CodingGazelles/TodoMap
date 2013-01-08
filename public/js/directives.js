@@ -19,7 +19,7 @@ todoApp.directive('map', function($compile) {
                 
                 // start squarifying
                 var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
-                mapBuilder.squarifyNodes();
+                mapBuilder.squarify();
                 
                 if (angular.isArray(scope.node.childNodes)) {
                     iElement.append( '<node ng-repeat="child in node.childNodes" td-node="child"></node>');
@@ -47,22 +47,19 @@ todoApp.directive('node', function nodeFactory($compile) {
         link: function(scope, iElement, attrs) {
             console.log("call function link of directive node");
             
-            iElement.css( 'background-color', scope.node.bgcolor);
-            if( scope.node.top !== undefined 
-                && scope.node.left !== undefined
-                    && scope.node.width !== undefined
-                        && scope.node.height !== undefined){
-                iElement.css( 'top', scope.node.top.toFixed(0) + "px");
-                iElement.css( 'left', scope.node.left.toFixed(0) + "px");
-                iElement.css( 'width', scope.node.width.toFixed(0) + "px");
-                iElement.css( 'height', scope.node.height.toFixed(0) + "px");
+            iElement.css( 'background-color', scope.node.style.bgcolor);
+            if( scope.node.box !== undefined ){
+                iElement.css( 'top', scope.node.box.top.toFixed(0) + "px");
+                iElement.css( 'left', scope.node.box.left.toFixed(0) + "px");
+                iElement.css( 'width', scope.node.box.width.toFixed(0) + "px");
+                iElement.css( 'height', scope.node.box.height.toFixed(0) + "px");
             }
             
             if (angular.isArray(scope.node.childNodes)) {
                 
                 // start squarifying
 //                var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
-//                mapBuilder.squarifyNodes();
+//                mapBuilder.squarify();
                 
                 iElement.append( '<div class="node">{{node.label}}</div>');
                 iElement.append(
