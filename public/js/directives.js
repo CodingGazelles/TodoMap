@@ -58,8 +58,8 @@ todoApp.directive('node', function nodeFactory($compile) {
             if (angular.isArray(scope.node.childNodes)) {
                 
                 // start squarifying
-//                var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
-//                mapBuilder.squarify();
+                var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
+                mapBuilder.squarify();
                 
                 iElement.append( '<div class="node">{{node.label}}</div>');
                 iElement.append(

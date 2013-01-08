@@ -14,7 +14,7 @@ todoApp.controller('MapCtrl', function($scope, maps) {
         console.log("call api maps.getMap succeed");
         weighChildNodes(data);
         scaleBranchWeight(data);
-        colorize(data);
+        colorizeNodes([data]);
         $scope.mapData = data;
         //console.log("$scope.mapData: " + JSON.stringify(data));
     },
@@ -31,37 +31,38 @@ todoApp.controller('MapCtrl', function($scope, maps) {
 
 });
 
-//function colorizeNodes(nodes, )
-
-function colorize(tree, hsvColor, hueVar) {
-    if( tree.childNodes === undefined)
+function colorizeNodes(nodes, parentColor, hueRange){
+    if(nodes === undefined || nodes.length === 0)
         return;
-    if (hueVar === undefined) hueVar = 360;
-    if (hsvColor === undefined) hsvColor = {
+    
+    if (parentColor === undefined) parentColor = {
         h: 0,
         s: 0.7,
         v: 1
     };
-    hueVar = Math.min(hueVar, 360);
-    var nColor = tree.childNodes.length;
-    var color = {
-        h: (360 + hsvColor.h - hueVar * 3 / 8) % 360,
-        s: hsvColor.s,
-        v: hsvColor.v
-    };
-    for (var i = 0; i < nColor; i++) {
-        color = {
-            h: (color.h + hueVar / nColor * i) % 360,
-            s: color.s,
-            v: color.v
-        };
-        tree.childNodes[i].style={};
-        tree.childNodes[i].style.bgcolor = tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
-        colorize(tree.childNodes[i], {
-            h: color.h,
-            s: color.s * 0.65,
-            v: color.v
-        }, hueVar / nColor);
+    
+    if( hueRange === undefined) 
+        hueRange = 360;
+    else
+        hueRange = Math.min( hueRange, 360);
+    
+    var hueOffset = hueRange / nodes.length;
+    var color = {};
+    for( var i in nodes){
+        color.h = (parentColor.h + hueOffset * i) % 360;
+        color.s = parentColor.s;
+        color.v = parentColor.v;
+        
+        if( nodes[i].style === undefined)
+            nodes[i].style = {};
+        
+        nodes[i].style.bgcolor = tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
+        if( nodes[i].childNodes !== undefined)
+            colorizeNodes(nodes[i].childNodes, {
+                h: color.h,
+                s: color.s * 0.65,
+                v: color.v
+            }, hueRange / nodes.length);
     }
 }
 
