@@ -1,5 +1,5 @@
 'use strict';
 
-var todoApp = angular.module( 'todoApp', ['dataServices']);
+var todoApp = angular.module( 'todoApp', ['dataServices', 'utils']);
 
 

@@ -14,12 +14,13 @@ todoApp.directive('map', function($compile) {
         link: function linkMap(scope, iElement, iAttrs) {
             console.log("call function link of directive map");
             
-            //iElement.bind( 'resize', updateMap());        // TODO: ne fonctionne pas, revoir
-            
             function updateMap() {
                 console.log("call function updateMap");
                 
                 if( scope.node.label !== undefined){
+                    
+                    iElement.contents().remove();
+                    
                     // start squarifying
                     var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
                     mapBuilder.squarify();
@@ -29,14 +30,48 @@ todoApp.directive('map', function($compile) {
                     }
                     $compile(iElement.contents())(scope.$new());
                 }
+                
+//                console.log("fin call function updateMap");
             }
             
-            scope.$watch( function(){ return scope.node.label}, function watchMap(newValue, oldValue) {
-                console.log("call watch callback");
-                if ( newValue !== oldValue){
-                    updateMap();
-                }
-            }, true);
+            scope.$watch( 
+                function(){ return scope.node.label}, 
+                function watchMap(newValue, oldValue) {
+                    console.log("callback function watchMap");
+                    if ( newValue !== oldValue){
+                        updateMap();
+                    }
+                }, 
+                true
+            );
+            
+            
+            // version 1
+            scope.$watch(
+                function(){ 
+                    var element = document.getElementById("td-map");
+                    return {width: element.offsetWidth, height: element.offsetHeight};
+                },
+                function watchWindowResize( newValue, oldValue) {
+                    console.log( "callback function watchWindowResize");
+                    if ( newValue !== oldValue){
+                        updateMap();
+                    }
+                },
+                true
+            );
+            
+            // version 2
+//            scope.$watch(
+//                function(){ return scope.mapSize},
+//                function watchWindowResize( newValue, oldValue) {
+//                    console.log( "callback function watchWindowResize");
+//                    if ( newValue !== oldValue){
+//                        scope.$evalAsync( updateMap());
+//                    }
+//                },
+//                true
+//            );
         }
     };
 });
@@ -51,7 +86,8 @@ todoApp.directive('node', function nodeFactory($compile) {
         template: '<div class="td-node"></div>',
         replace: true,
         link: function(scope, iElement, attrs) {
-            console.log("call function link of directive node");
+//            console.log("call function link of directive node");
+//            console.log("node: " + scope.node.label);
             
             iElement.css( 'background-color', scope.node.style.bgcolor);
             if( scope.node.box !== undefined ){
@@ -73,8 +109,6 @@ todoApp.directive('node', function nodeFactory($compile) {
                 // start squarifying
                 var mapBuilder = new MapBuilder(scope.node.childNodes, cNodesElement);
                 mapBuilder.squarify();
-                
-                
                 
             }else{
                 iElement.append( angular.element('<div class="td-terminal-node">{{node.label}}</div>'));

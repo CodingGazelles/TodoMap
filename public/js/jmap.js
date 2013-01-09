@@ -6,7 +6,7 @@ function BoundingBox( rectangle){
     this.offsetTop = 0;                 // position of the LayoutBox relative to the top-left of the BoundingBox
     this.offsetLeft = 0;                // position of the LayoutBox relative to the top-left of the BoundingBox
     
-    console.log( "New Bounding Box: " + JSON.stringify(this));
+//    console.log( "New Bounding Box: " + JSON.stringify(this));
 }
 
 BoundingBox.prototype = {
@@ -22,7 +22,7 @@ BoundingBox.prototype = {
             this.offsetTop += currentBox.normalLength;
             newBox = new LayoutBox( "vertical", this.height - this.offsetTop);
         }
-        console.log( "Bounding Box: " + JSON.stringify(this));
+//        console.log( "Bounding Box: " + JSON.stringify(this));
         return newBox;
     }
 };
@@ -36,7 +36,7 @@ function LayoutBox(axis, length) {
     
     this.offset = 0;             // position of the node along the axis of the layout box and relative to its origin
     
-    console.log( "New Layout Box: " + JSON.stringify(this));
+//    console.log( "New Layout Box: " + JSON.stringify(this));
 }
 
 function MapBuilder(nodeArray, element){
@@ -57,7 +57,7 @@ MapBuilder.prototype = {
     
     // initiate the layout algorithm
     initLayout: function(){
-        console.log("Init the layout");
+//        console.log("Init the layout");
         this.layoutNodes = [];
         this.pushNextNode();
         this.layoutBox = this.boundingBox.buildNewLayoutBox( this.layoutBox);
@@ -65,13 +65,13 @@ MapBuilder.prototype = {
     
     // push the next pending node inside the layout box
     pushNextNode : function(){
-        console.log( "Push node into layout box: " + this.pendingNodes[0].label);
+//        console.log( "Push node into layout box: " + this.pendingNodes[0].label);
         this.layoutNodes.push( this.pendingNodes.shift());
     },
     
     // place the pending nodes inside the layout box according to the aspect ratio
     squarify : function(){
-        console.log("call function squarifyNodes");
+//        console.log("call function squarifyNodes");
         
         // if there's no remaining pending nodes, 
         if( this.pendingNodes.length === 0){
@@ -103,7 +103,7 @@ MapBuilder.prototype = {
     
     // determine the position (top, left, width, height) of the nodes inside the layout box
     layout: function (){
-        console.log("call function layoutNodes");
+//        console.log("call function layoutNodes");
         
         // compute total area of the layout nodes
         var totalArea = 0;
@@ -115,7 +115,7 @@ MapBuilder.prototype = {
         this.layoutBox.area = totalArea;
         this.layoutBox.normalLength = this.layoutBox.area / this.layoutBox.axisLength;
         
-        console.log( "Layout box: " + JSON.stringify(this.layoutBox));
+//        console.log( "Layout box: " + JSON.stringify(this.layoutBox));
         
         for( var i in this.layoutNodes){
             var node = this.layoutNodes[i];
@@ -134,13 +134,13 @@ MapBuilder.prototype = {
                 this.layoutBox.offset += node.box.width;
             }
             
-            console.log( "Node box: " + JSON.stringify(node.box));
+//            console.log( "Node box: " + JSON.stringify(node.box));
         }
     },
     
     // compute highest aspect ratio
     worstRatio: function ( nodes) {
-        console.log("call function worstRatio");
+//        console.log("call function worstRatio");
         
         // build array of nodes' areas
         var areas = nodes.map(function(child) {
@@ -163,7 +163,7 @@ MapBuilder.prototype = {
             this.layoutBox.axisLength * this.layoutBox.axisLength * max / (totalArea * totalArea), 
             totalArea * totalArea / (this.layoutBox.axisLength * this.layoutBox.axisLength * min)
         );
-        console.log( "ratio: " + w);
+//        console.log( "ratio: " + w);
         return w;
     }
 };
