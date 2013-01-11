@@ -32,51 +32,37 @@ todoApp.directive('map', function($compile) {
                 }
             }
 
+            // watch map loading
             scope.$watch(
-
-            function() {
-                return scope.node.label;
-            },
-
-            function watchMap(newValue, oldValue) {
-                console.log("callback function watchMap");
-                if (newValue !== oldValue) {
-                    updateMap();
-                }
-            },
-            true);
-
-
-            // version 1
+                function() {
+                    return scope.node.label;
+                },
+                function watchMapLoading(newValue, oldValue) {
+                    console.log("callback function watchMapLoading");
+                    if (newValue !== oldValue) {
+                        updateMap();
+                    }
+                },
+                true
+            );
+            
+            // watch window resize
             scope.$watch(
-
-            function() {
-                var element = document.getElementById("td-map");
-                return {
-                    width: element.offsetWidth,
-                    height: element.offsetHeight
-                };
-            },
-
-            function watchWindowResize(newValue, oldValue) {
-                console.log("callback function watchWindowResize");
-                if (newValue !== oldValue) {
-                    updateMap();
-                }
-            },
-            true);
-
-            // version 2
-            //            scope.$watch(
-            //                function(){ return scope.mapSize},
-            //                function watchWindowResize( newValue, oldValue) {
-            //                    console.log( "callback function watchWindowResize");
-            //                    if ( newValue !== oldValue){
-            //                        scope.$evalAsync( updateMap());
-            //                    }
-            //                },
-            //                true
-            //            );
+                function() {
+                    var element = document.getElementById("td-map");
+                    return {
+                        width: element.offsetWidth,
+                        height: element.offsetHeight
+                    };
+                },
+                function watchWindowResize(newValue, oldValue) {
+                    console.log("callback function watchWindowResize");
+                    if (newValue !== oldValue) {
+                        updateMap();
+                    }
+                },
+                true
+            );
         }
     };
 });
@@ -129,17 +115,6 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
                 event.stopPropagation();
                 scope.$apply( updateNode());
             });
-            
-//            scope.$watch(
-//                function() { return scope.node;},
-//                function watchNode(newValue, oldValue) {
-//                    console.log("callback function watchNode");
-//                    if (newValue !== oldValue) {
-//                        updateNode();
-//                    }
-//                },
-//                true
-//            );
             
             updateNode();
         }
