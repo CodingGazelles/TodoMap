@@ -9,13 +9,13 @@ todoApp.controller('MapCtrl', function($scope, debounce, maps) {
 
     $scope.mapData = {};
     maps.getMap({
-        id: "50e4ad430abcd7f031000001"
+        id: "50f00179d9282cc575000001"
     },
 
     function(data) { // SUCCESS
         console.log("call api maps.getMap succeed");
-        weighChildNodes(data);
-        scaleBranchWeight(data);
+        //weighChildNodes(data);
+        //scaleBranchWeight(data);
         colorizeNodes([data]);
         $scope.mapData = data;
         //console.log("$scope.mapData: " + JSON.stringify(data));

@@ -1,4 +1,4 @@
-{
+exports.tree = [{
     "childNodes": [{
         "childNodes": [{
             "childNodes": [{
@@ -284,4 +284,4 @@
     "_id": "50e4ad430abcd7f031000001",
     "childNodesWeight": 180,
     "weightScale": "100.000%"
-}
+}];

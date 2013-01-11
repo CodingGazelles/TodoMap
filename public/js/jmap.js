@@ -47,7 +47,7 @@ function MapBuilder(nodeArray, element){
     
     // calculate nodes' areas
     for( var i = 0; i< this.pendingNodes.length; i++) {
-        this.pendingNodes[i].area = this.pendingNodes[i].weightScale * this.boundingBox.area;
+        this.pendingNodes[i].area = this.pendingNodes[i].weight / 100 * this.boundingBox.area;
     }
     
     this.initLayout();

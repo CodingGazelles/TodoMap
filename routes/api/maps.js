@@ -38,6 +38,8 @@ exports.findById = function(req, res) {
             '_id': new BSON.ObjectID(id)
         }, function(err, item) {
             if(err) throw err;
+            console.log('Retrievied map: ' + item);
+            console.log('Retrievied err: ' + err);
             res.send(item);
         });
     });

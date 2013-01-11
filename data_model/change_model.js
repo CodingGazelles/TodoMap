@@ -1,4 +1,4 @@
-var data = require("./data/exp4");
+var data = require("./data/exp6");
 
 
 function changeTree( nodeArray){
@@ -6,8 +6,11 @@ function changeTree( nodeArray){
         
         //console.log( node.label);
         
-        if( ! node.weight   )
-            node.weight = 1;
+        node.weight = parseFloat(node.weightScale);
+        node.opened = true;
+        
+        delete node.childNodesWeight;
+        delete node.weightScale;
         
         
         if( node.childNodes !== undefined){
