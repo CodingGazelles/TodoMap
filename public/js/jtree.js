@@ -1,16 +1,17 @@
+TdNode.childrenAttr = "childNodes";
+
 function TdNode(parent, data) {
     this.parent = parent || null;
-    this.data = data || {};
-
+    
+    data = data || {};
     var key;
     for (key in data) {
         this[key] = data[key];
     }
 
-    this.children = [];
+    this[TdNode.childrenAttr] = [];
 }
 
-TdNode.childrenAttr = "childNodes";
 TdNode.parse = function(data) {
     var root;
     var getNodeData = function(node) {
@@ -47,10 +48,16 @@ TdNode.prototype = {
     isTerminal: function() {
         return this[TdNode.childrenAttr] === undefined || this[TdNode.childrenAttr].length === 0;
     },
-    
     appendChild: function(data){
-        var newNode = new TdNode( this , data);
-        parent[TdNode.childrenAttr].push(newNode);
+        var newNode = new TdNode( this, data);
+        this[TdNode.childrenAttr].push(newNode);
+        
+        return newNode;
+    },
+    createChild: function(){
+        var newNode = new TdNode( this);
+        newNode.path = this.path + "/" + this[TdNode.childrenAttr].length;
+        this[TdNode.childrenAttr].push(newNode);
         
         return newNode;
     }
