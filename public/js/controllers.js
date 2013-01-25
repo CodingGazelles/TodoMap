@@ -5,36 +5,70 @@
 
 
 todoApp.controller('MapCtrl', function($scope, debounce, maps) {
-    console.log("call controller Map");
-
-    $scope.mapData = {};
-    maps.getMap({
-        id: "50f00179d9282cc575000001"
-    },
-
-    function(data) { // SUCCESS
-        console.log("call api maps.getMap succeed");
-        colorizeNodes([data]);
-        $scope.mapData = data;
-        //console.log("$scope.mapData: " + JSON.stringify(data));
-    },
-
-    function(data) { // FAILURE
-        console.log("call api maps.getMap failed");
-        console.log("data: " + data);
-        $scope.mapData = {
-            label: "error",
-            childNodes: []
-        };
-        console.log("$scope.mapData: " + JSON.stringify(data));
-    });
     
+    // binding window resize event with $scope.$digest to trigger registered $scope.$watch in map directive
     angular.element(window).bind('resize', function() {
-        console.log("Callback map resize");
+        console.log("Callback event window resize");
         debounce( $scope.$digest(), 2000, false);
     });
+    
+    // listener on saveMap event
+    $scope.$on( 'saveMap', function onSaveMap(){
+        console.log("callback listener onSaveMap");
+        event.stopPropagation();
+        $scope.savedState = "Saving ...";
+        $scope.$digest();
+        debounce( $scope.saveMap(), 20000, false);
+    });
+    
+    $scope.loadMap = function( mapId){
+        console.log("call function loadMap");
+        maps.getMap(
+            {id: mapId},
+            function(data) { // SUCCESS
+                console.log("call api maps.getMap succeed");
+                var tree = TdNode.parse( data);
+                colorizeNodes([tree]);
+                $scope.mapData = tree;
+                //console.log("$scope.mapData: " + JSON.stringify(data));
+            },
+            function(data) { // FAILURE
+                console.log("call api maps.getMap failed");
+                console.log("data: " + data);
+                $scope.mapData = {
+                    label: "error",
+                    childNodes: []
+                };
+                console.log("$scope.mapData: " + JSON.stringify(data));
+            }
+        );
+    };
+    
+    $scope.saveMap = function(){
+        console.log("call function saveMap");
+        //console.log("$scope.mapData: " + JSON.stringify( $scope.mapData));
+        
+        // TODO: nettoyer map
+        
+        maps.saveMap(
+            {id: $scope.mapData._id},
+            $scope.mapData,
+            function(data) { // SUCCESS
+                console.log("call api maps.saveMap succeed");
+                //console.log("$scope.mapData: " + JSON.stringify(data));
+            },
+            function(data) { // FAILURE
+                console.log("call api maps.saveMap failed");
+                //console.log("$scope.mapData: " + JSON.stringify(data));
+            }
+        );
+        $scope.savedState = "Saved";
+    };
+    
+    console.log("Loading Map");
+    $scope.mapData = {};
+    $scope.loadMap("5100316ce05f9ac773000001");
 });
-
 
 
 function colorizeNodes(nodes, parentColor, hueRange) {
@@ -66,5 +100,7 @@ function colorizeNodes(nodes, parentColor, hueRange) {
         }, hueRange / nodes.length);
     }
 }
+
+
 
 

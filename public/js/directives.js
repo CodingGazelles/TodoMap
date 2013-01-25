@@ -2,7 +2,7 @@
 
 /* Directives */
 
-todoApp.directive('map', function($compile) {
+todoApp.directive('tdMap', function($compile) {
     return {
         restrict: 'E',
         terminal: true,
@@ -13,18 +13,18 @@ todoApp.directive('map', function($compile) {
         replace: true,
         link: function linkMap(scope, iElement, iAttrs) {
             console.log("call function link of directive map");
-
+            
             function updateMap() {
                 console.log("call function updateMap");
-
+                
                 if (scope.node.label !== undefined) {
-
+                    
                     iElement.contents().remove();
-
+                    
                     // start squarifying
-                    var mapBuilder = new MapBuilder(scope.node.childNodes, iElement);
+                    var mapBuilder = new MapBuilder(scope.node.childNodes, iElement[0].getBoundingClientRect());
                     mapBuilder.squarify();
-
+                    
                     if (angular.isArray(scope.node.childNodes)) {
                         iElement.append('<td-node ng-repeat="child in node.childNodes" td-node="child"></td-node>');
                     }
@@ -80,14 +80,15 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
             //            console.log("call function link of directive node");
             //            console.log("node: " + scope.node.label);
 
-            function updateNode() {
-                console.log( "call function updateNode");
-                console.log( "node: " + JSON.stringify( scope.node));
+            function layoutNode() {
+                console.log( "call function updateNode:" + scope.node.label);
+                //console.log( "node: " + JSON.stringify( scope.node));
 
                 iElement.contents().remove();
 
                 iElement.css('background-color', scope.node.style.bgcolor);
-                if (scope.node.box !== undefined) {
+                
+                if (scope.node.opened) {
                     iElement.css('top', scope.node.box.top.toFixed(0) + "px");
                     iElement.css('left', scope.node.box.left.toFixed(0) + "px");
                     iElement.css('width', scope.node.box.width.toFixed(0) + "px");
@@ -103,20 +104,29 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
                     cNodesElement.append('<td-node ng-repeat="child in node.childNodes" td-node="child"></td-node>');
 
                     // start squarifying
-                    var mapBuilder = new MapBuilder(scope.node.childNodes, cNodesElement);
+                    var mapBuilder = new MapBuilder(scope.node.childNodes, cNodesElement[0].getBoundingClientRect());
                     mapBuilder.squarify();
                 }
 
                 $compile(iElement.contents())(scope.$new());
             }
             
-            scope.$on( 'updateNode', function onUpdateNode( event){
-                console.log("callback function onUpdateNode");
-                event.stopPropagation();
-                scope.$apply( updateNode());
+            scope.$on( 'layoutNode', function onlayoutNode( event, nodePath){
+                console.log("callback listener onlayoutNode");
+                if( scope.node.path === nodePath){
+                    event.stopPropagation();
+                    scope.$apply( layoutNode());
+                }
             });
             
-            updateNode();
+            scope.$on( 'toggleNode', function onToggleNode( event){
+                console.log("callback listener onToggleNode");
+                event.stopPropagation();
+                scope.$emit('layoutNode' );
+                scope.$emit('saveMap');
+            });
+            
+            layoutNode();
         }
     };
 });
@@ -133,8 +143,8 @@ todoApp.directive('tdLabel', function labelFactory($compile) {
         replace: true,
         transclude: true,
         link: function updateLabel(scope, iElement, attrs) {
-            console.log("call function updateLabel");
-            console.log( "node: " + JSON.stringify( scope.node));
+            //console.log("call function updateLabel");
+            //console.log( "node: " + JSON.stringify( scope.node));
             
             var button = angular.element( '<i></i>');
             //button.addClass( "icon-white");
@@ -149,7 +159,7 @@ todoApp.directive('tdLabel', function labelFactory($compile) {
                 scope.node.opened = !scope.node.opened;
                 button.addClass( scope.node.opened ? "icon-minus-sign" : "icon-plus-sign");
                 button.removeClass( scope.node.opened ? "icon-plus-sign" : "icon-minus-sign");
-                scope.$emit('updateNode');
+                scope.$emit('toggleNode');
             }
             
             $compile(iElement.contents())(scope.$new());
