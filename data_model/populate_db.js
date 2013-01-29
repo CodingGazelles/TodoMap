@@ -8,7 +8,9 @@ var Server = mongo.Server,
 //mongodb://<user>:<password>@linus.mongohq.com:10013/todomap
 //mongodb://<dbuser>:<dbpassword>@ds047037.mongolab.com:47037/todomap
 
-var server = new Server('ds047037.mongolab.com', 47037, { auto_reconnect: true });
+// var server = new Server('ds047037.mongolab.com', 47037, { auto_reconnect: true });
+
+var server = new Server('localhost', 27017, { auto_reconnect: true });
 var db = new Db('todomap', server, {native_parser:false});
 
 
