@@ -2,13 +2,11 @@
 
 /* Directives */
 
-todoApp.directive('tdMap', function($compile) {
+todoApp.directive('tdMap', function mapFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
-        scope: {
-            node: '=tdNode'
-        },
+        scope: { node: '=tdNode'},
         template: '<div class="td-top-node"></div>',
         replace: true,
         link: function linkMap(scope, iElement, iAttrs) {
@@ -71,9 +69,7 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
-        scope: {
-            node: '=tdNode'
-        },
+        scope: { node: '=tdNode'},
         template: '<div class="td-node"></div>',
         replace: true,
         link: function(scope, iElement, attrs) {
@@ -81,7 +77,7 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
             //            console.log("node: " + scope.node.label);
 
             function layoutNode() {
-                console.log( "call function updateNode:" + scope.node.label);
+                console.log( "call function layoutNode:" + scope.node.label);
                 //console.log( "node: " + JSON.stringify( scope.node));
 
                 iElement.contents().remove();
@@ -111,19 +107,20 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
                 $compile(iElement.contents())(scope.$new());
             }
             
-            scope.$on( 'layoutNode', function onlayoutNode( event, nodePath){
-                console.log("callback listener onlayoutNode");
-                if( scope.node.path === nodePath){
+            // scope.$on( 'layoutNode', function onlayoutNode( event, nodePath){
+            //     console.log("callback listener onlayoutNode");
+            //     if( scope.node.path === nodePath){
+            //         event.stopPropagation();
+            //         scope.$apply( layoutNode());
+            //     }
+            // });
+            
+            scope.$on( 'toggleNode', function onToggleNode( event, args){
+                console.log("callback listener onToggleNode");
+                if( scope.node.path === args.targetPath){
                     event.stopPropagation();
                     scope.$apply( layoutNode());
-                }
-            });
-            
-            scope.$on( 'toggleNode', function onToggleNode( event){
-                console.log("callback listener onToggleNode");
-                event.stopPropagation();
-                scope.$emit('layoutNode' );
-                scope.$emit('saveMap');
+                } 
             });
             
             layoutNode();
@@ -135,13 +132,9 @@ todoApp.directive('tdLabel', function labelFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
-        scope: {
-            node: '=tdNode'
-        },
-        template: 
-            '<div class="td-label"></div>',
+        scope: { node: '=tdNode'},
+        template: '<div class="td-label"></div>',
         replace: true,
-        transclude: true,
         link: function updateLabel(scope, iElement, attrs) {
             //console.log("call function updateLabel");
             //console.log( "node: " + JSON.stringify( scope.node));
@@ -159,7 +152,8 @@ todoApp.directive('tdLabel', function labelFactory($compile) {
                 scope.node.opened = !scope.node.opened;
                 button.addClass( scope.node.opened ? "icon-minus-sign" : "icon-plus-sign");
                 button.removeClass( scope.node.opened ? "icon-plus-sign" : "icon-minus-sign");
-                scope.$emit('toggleNode');
+                // scope.$emit('toggleNode', { "targetPath": scope.node.parent.path});
+                scope.$emit('modifiedMap');
             }
             
             $compile(iElement.contents())(scope.$new());
