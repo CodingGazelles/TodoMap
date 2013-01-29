@@ -76,44 +76,46 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
             //            console.log("call function link of directive node");
             //            console.log("node: " + scope.node.label);
 
+            scope.node.opened = true;           // temp
+
             function layoutNode() {
                 console.log( "call function layoutNode:" + scope.node.label);
                 //console.log( "node: " + JSON.stringify( scope.node));
 
                 iElement.contents().remove();
-
                 iElement.css('background-color', scope.node.style.bgcolor);
+
+                var top = scope.node.box.top, 
+                    left = scope.node.box.left,
+                    width = scope.node.box.width, 
+                    height = scope.node.box.height;
+                var childElement, labelElement;
                 
-                if (scope.node.opened) {
-                    iElement.css('top', scope.node.box.top.toFixed(0) + "px");
-                    iElement.css('left', scope.node.box.left.toFixed(0) + "px");
-                    iElement.css('width', scope.node.box.width.toFixed(0) + "px");
-                    iElement.css('height', scope.node.box.height.toFixed(0) + "px");
-                }
+                // define the bounding box of this node
+                iElement.css('top', top.toFixed(0) + "px");
+                iElement.css('left', left.toFixed(0) + "px");
+                iElement.css('width', width.toFixed(0) + "px");
+                iElement.css('height', height.toFixed(0) + "px");
 
-                iElement.append('<td-label td-node="node"></td-label>');
+                // define the label box of the node
+                labelElement = angular.element('<td-label td-node="node"></td-label>');
+                iElement.append( labelElement);
 
-                if (angular.isArray(scope.node.childNodes) && scope.node.opened) {
-                    var cNodesElement = angular.element('<div class="td-child-nodes"></div>');
-                    iElement.append(cNodesElement);
-
-                    cNodesElement.append('<td-node ng-repeat="child in node.childNodes" td-node="child"></td-node>');
+                // define the childnode box of the node
+                if (angular.isArray(scope.node.childNodes)) {
+                    childElement = angular.element(
+                        '<div class="td-child-nodes"><td-node ng-repeat="child in node.childNodes" td-node="child"></td-node></div>');
+                    childElement.css('top', "20px");
+                    childElement.css('height', (height - 20).toFixed(0) + "px");
+                    iElement.append(childElement);
 
                     // start squarifying
-                    var mapBuilder = new MapBuilder(scope.node.childNodes, cNodesElement[0].getBoundingClientRect());
+                    var mapBuilder = new MapBuilder(scope.node.childNodes, childElement[0].getBoundingClientRect());
                     mapBuilder.squarify();
                 }
 
                 $compile(iElement.contents())(scope.$new());
             }
-            
-            // scope.$on( 'layoutNode', function onlayoutNode( event, nodePath){
-            //     console.log("callback listener onlayoutNode");
-            //     if( scope.node.path === nodePath){
-            //         event.stopPropagation();
-            //         scope.$apply( layoutNode());
-            //     }
-            // });
             
             scope.$on( 'toggleNode', function onToggleNode( event, args){
                 console.log("callback listener onToggleNode");
