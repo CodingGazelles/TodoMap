@@ -4,7 +4,7 @@
 
 
 
-todoApp.controller('MapCtrl', function($scope, debounce, maps) {
+todoApp.controller('MapCtrl', function($scope, debounce, maps){
     
     // binding window resize event with $scope.$digest to trigger registered $scope.$watch in map directive
     angular.element(window).bind('resize', function() {
@@ -13,8 +13,8 @@ todoApp.controller('MapCtrl', function($scope, debounce, maps) {
     });
     
     // listener on saveMap event
-    $scope.$on( 'saveMap', function onSaveMap(){
-        console.log("callback listener onSaveMap");
+    $scope.$on( 'modifiedMap', function onModifiedMap( event){
+        console.log("callback listener onModifiedMap");
         event.stopPropagation();
         $scope.savedState = "Saving ...";
         $scope.$digest();
@@ -29,8 +29,8 @@ todoApp.controller('MapCtrl', function($scope, debounce, maps) {
                 console.log("call api maps.getMap succeed");
                 var tree = TdNode.parse( data);
                 colorizeNodes([tree]);
-                $scope.mapData = tree;
-                //console.log("$scope.mapData: " + JSON.stringify(data));
+                $scope.todoTree = tree;
+                //console.log("$scope.todoTree: " + JSON.stringify(data));
             },
             function(data) { // FAILURE
                 console.log("call api maps.getMap failed");
@@ -39,7 +39,7 @@ todoApp.controller('MapCtrl', function($scope, debounce, maps) {
                     label: "error",
                     childNodes: []
                 };
-                console.log("$scope.mapData: " + JSON.stringify(data));
+//                console.log("$scope.mapData: " + JSON.stringify(data));
             }
         );
     };
@@ -48,11 +48,11 @@ todoApp.controller('MapCtrl', function($scope, debounce, maps) {
         console.log("call function saveMap");
         //console.log("$scope.mapData: " + JSON.stringify( $scope.mapData));
         
-        // TODO: nettoyer map
+        var todoData = TdNode.clean( $scope.todoTree);
         
         maps.saveMap(
-            {id: $scope.mapData._id},
-            $scope.mapData,
+            {id: todoData._id},
+            todoData,
             function(data) { // SUCCESS
                 console.log("call api maps.saveMap succeed");
                 //console.log("$scope.mapData: " + JSON.stringify(data));
@@ -66,8 +66,8 @@ todoApp.controller('MapCtrl', function($scope, debounce, maps) {
     };
     
     console.log("Loading Map");
-    $scope.mapData = {};
-    $scope.loadMap("5100316ce05f9ac773000001");
+    $scope.todoTree = {};
+    $scope.loadMap("51051fd25b442a5849000001");
 });
 
 
