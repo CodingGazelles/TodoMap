@@ -9,16 +9,42 @@ function MapBuilder(nodeArray, rectangle) {
         offsetLeft : 0                    // position of the layout frame relative to the top-left of the BoundingBox
     };
 
-    // calculate nodes' areas
-    for (var i = 0; i < this.pendingNodes.length; i++) {
-        this.pendingNodes[i].area = this.pendingNodes[i].weight / 100 * this.boundingBox.area;
-    }
-    
-    // init the layout
+    this.computeNodeAreas();
     this.newLayoutZone();
 }
 
+function Zone(axis, length){
+    this.axis= axis;                               // axis of the area: vertical or horizontal
+    this.axisLength= length;                       // length of the box in the direction of the axis 
+    this.normalLength= 0;                          // length of the box in the direction perpendicular to the axis 
+    this.area= 0;                                  // area of the layout rectangle
+    this.offset= 0; 
+
+    this.width = function(){
+        return axis === "horizontal" ? axisLength : normalLength;
+    }
+
+    this.height = function(){
+        return axis === "horizontal" ? normalLength : axisLength;
+    }
+}
+
 MapBuilder.prototype = {
+
+    // calculate nodes' areas
+    computeNodeAreas: function(){
+        var node;
+        for(var i = 0; i < this.pendingNodes.length; i++ ) {
+            node = this.pendingNodes[i];
+            if( node.opened){
+                node.area = node.weight / 100 * this.boundingBox.area;
+            } else {
+                node.area = function(){
+                    return 20 * this.currentZone.width;
+                }
+            }
+        }
+    },
     
     // place the pending nodes inside the layout box according to the aspect ratio
     squarify: function() {
@@ -113,27 +139,18 @@ MapBuilder.prototype = {
         this.pushNextNode();
 
         var zone, currentZone = this.currentZone;
-        function newZone( axis, length){
-            return {
-                axis: axis,                               // axis of the area: vertical or horizontal
-                axisLength: length,                       // length of the box in the direction of the axis 
-                normalLength: 0,                          // length of the box in the direction perpendicular to the axis 
-                area: 0,                                  // area of the layout rectangle
-                offset: 0                                // position of the node along the axis of the layout box
-            };
-        }
 
         if (!currentZone) {
-            zone = newZone( "vertical", this.boundingBox.height);
+            zone = new Zone( "vertical", this.boundingBox.height);
         }
         else {
             if (currentZone.axis === "vertical") {
                 this.boundingBox.offsetLeft += currentZone.normalLength;
-                zone = newZone( "horizontal", this.boundingBox.width - this.boundingBox.offsetLeft);
+                zone = new Zone( "horizontal", this.boundingBox.width - this.boundingBox.offsetLeft);
             }
             else {
                 this.boundingBox.offsetTop += currentZone.normalLength;
-                zone = newZone( "vertical", this.boundingBox.height - this.boundingBox.offsetTop);
+                zone = new Zone( "vertical", this.boundingBox.height - this.boundingBox.offsetTop);
             }
         }
         this.currentZone = zone;
@@ -145,3 +162,5 @@ MapBuilder.prototype = {
         if( node) this.layoutNodes.push( node);
     }
 };
+
+
