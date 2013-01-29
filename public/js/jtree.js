@@ -41,6 +41,39 @@ TdNode.parse = function(data) {
     return root;
 };
 
+TdNode.clean = function(data){
+    var root;
+    var cleanNodeData = function(node) {
+        var attr, nodeData = {};
+        for (attr in node) {
+            if (attr !== TdNode.childrenAttr
+            	&& attr !== "parent"
+            	&& attr !== "box") nodeData[attr] = node[attr];
+        }
+        nodeData[TdNode.childrenAttr] = [];
+        return nodeData;
+    };
+
+    (function walkDown(node, parent) {
+        var newNode;
+        
+        if (!parent) {
+            newNode = root = cleanNodeData(node);
+        } else {
+            newNode = cleanNodeData(node);
+            parent[TdNode.childrenAttr].push( newNode);
+        }
+        
+        if (TdNode.childrenAttr in node) {
+            for (var i = 0; i < node[TdNode.childrenAttr].length; i++) {
+                walkDown(node[TdNode.childrenAttr][i], newNode);
+            }
+        }
+    })(data);
+
+    return root;
+};
+
 TdNode.prototype = {
     isRoot: function() {
         return this.parent === null;
