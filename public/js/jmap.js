@@ -1,4 +1,39 @@
 
+var TdColor = function(){};
+
+TdColor.colorize = function ( node){
+    if( !node) throw new Error("Node can't be null");
+    if( node.nodes().length === 0) return;
+
+    var parentColor, hueRange, hueOffset;
+
+    if( node.bgcolor.h && node.bgcolor.s && node.bgcolor.v){
+        parentColor =  {
+            h: node.bgcolor.h, 
+            s: node.bgcolor.s * 0.65, 
+            v: node.bgcolor.v
+        };
+    } else {
+        parentColor = {h: 0, s: 0.9, v: 1};
+    }
+
+    hueRange = node.hueRange || 360;
+    hueOffset = hueRange / node.nodes().length;
+
+    node.nodes().forEach( function( child, index) {
+        child.bgcolor = {
+            h: (parentColor.h + hueOffset * index) % 360,
+            s: parentColor.s,
+            v: parentColor.v
+        };
+        child.hueRange = hueOffset;
+    });
+}
+
+TdColor.toHexString = function( color){
+    return tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
+}
+
 function MapBuilder(nodeArray, rectangle) {
     this.pendingNodes = nodeArray.slice();              // nodes without position
     this.boundingBox = {
@@ -8,9 +43,8 @@ function MapBuilder(nodeArray, rectangle) {
         offsetTop : 0,                     // position of the layout frame relative to the top-left of the BoundingBox
         offsetLeft : 0                    // position of the layout frame relative to the top-left of the BoundingBox
     };
-
-    this.computeNodeAreas();
-    this.newLayoutZone();
+    this._computeNodeAreas();
+    this._newLayoutZone();
 }
 
 function Zone(axis, length){
@@ -31,8 +65,30 @@ function Zone(axis, length){
 
 MapBuilder.prototype = {
 
+    // place the pending nodes inside the layout box according to the aspect ratio
+    squarify: function() {
+        
+        var node = this.pendingNodes[0];                // get next pending node
+        
+        // if there's no remaining pending nodes, 
+        if (!node) {
+            this._layoutZone();
+        } else {
+            // test aspect ratio of the current row with one more node in it
+            if (this._worstRatio(this.layoutNodes) >= this._worstRatio(this.layoutNodes.concat(node))) {
+                this._pushNextNode();                        // move the node from the pending nodes to the layout nodes
+                this.squarify();                            // continue the squarify process
+            } else {
+                this._layoutZone();                     // layout the nodes
+                this._newLayoutZone();                      // init a new layout
+                this.squarify();                        // restart a squarify process
+            }
+        }
+        
+    },
+
     // calculate nodes' areas
-    computeNodeAreas: function(){
+    _computeNodeAreas: function(){
         var node;
         for(var i = 0; i < this.pendingNodes.length; i++ ) {
             node = this.pendingNodes[i];
@@ -45,32 +101,9 @@ MapBuilder.prototype = {
             }
         }
     },
-    
-    // place the pending nodes inside the layout box according to the aspect ratio
-    squarify: function() {
-        
-        var node = this.pendingNodes[0];                // get next pending node
-        
-        // if there's no remaining pending nodes, 
-        if (!node) {
-            this.layoutZone();
-        } else {
-            // test aspect ratio of the current row with one more node in it
-            if (this.worstRatio(this.layoutNodes) >= this.worstRatio(this.layoutNodes.concat(node))) {
-                this.pushNextNode();                        // move the node from the pending nodes to the layout nodes
-                this.squarify();                            // continue the squarify process
-            }
-            else {
-                this.layoutZone();                     // layout the nodes 
-                this.newLayoutZone();                      // init a new layout
-                this.squarify();                        // restart a squarify process
-            }
-        }
-        
-    },
 
     // compute highest aspect ratio
-    worstRatio: function(nodes) {
+    _worstRatio: function(nodes) {
 
         // build array of nodes' areas
         var areas = nodes.map(function(child) {
@@ -98,7 +131,7 @@ MapBuilder.prototype = {
     },
     
     // determine the position (top, left, width, height) of the nodes inside the bounding box
-    layoutZone: function() {
+    _layoutZone: function() {
 
         // compute total area of the layout nodes
         var totalArea = 0;
@@ -134,9 +167,9 @@ MapBuilder.prototype = {
     },
     
     // initiate the layout algorithm
-    newLayoutZone: function() {
+    _newLayoutZone: function() {
         this.layoutNodes = [];
-        this.pushNextNode();
+        this._pushNextNode();
 
         var zone, currentZone = this.currentZone;
 
@@ -157,10 +190,12 @@ MapBuilder.prototype = {
     },
     
     // push the next pending node inside the layout box
-    pushNextNode: function() {
+    _pushNextNode: function() {
         var node = this.pendingNodes.shift();
         if( node) this.layoutNodes.push( node);
     }
+
+    
 };
 
 
