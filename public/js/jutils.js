@@ -1,4 +1,6 @@
 
+
+
 // Add property last to arrays
 Object.defineProperty(Array.prototype, 'last', {
     enumerable: false,
