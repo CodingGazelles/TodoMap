@@ -1,4 +1,4 @@
-var data = require("./data/exp7");
+var data = require("./data/exp9");
 
 
 //function changeTree( nodeArray){
@@ -21,7 +21,7 @@ var data = require("./data/exp7");
 //    });
 //}   
 
-function changeTree( nodeArray, parentPath){
+function changeTree( nodeArray){
     var node;
     
     for( var i = 0; i < nodeArray.length; i++){
@@ -29,11 +29,13 @@ function changeTree( nodeArray, parentPath){
         node = nodeArray[i];
         //console.log( node.label);
         
-        node.path = parentPath + "/" + i.toString();
+        // node.path = parentPath + "/" + i.toString();
+        node.index = parseInt( node.path.slice( node.path.length - 1));
+        delete node.path;
         
         
         if( node.childNodes !== undefined){
-            changeTree( node.childNodes, node.path);
+            changeTree( node.childNodes);
         }
         
         
