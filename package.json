@@ -10,6 +10,9 @@
     "jade": "*",
     "less-middleware": "*",
     "underscore": "*",
-    "mongodb": "*"
+    "mongodb": "*",
+    "testacular"  : "canary",
+    "http-server" : "0.5.3",
+    "chai"        : "1.4.0"
   }
 }
