@@ -7,7 +7,7 @@ shared.growl     = true
 shared.defaultReporters = ['progress'];
 shared.defaultBrowsers = ['Chrome'];
 shared.defaultProxies = {
-  '/': 'http://localhost:8000'
+  '/': 'http://localhost:8000/'
 };
 
 exports.shared = shared;

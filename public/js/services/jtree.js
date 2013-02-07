@@ -10,7 +10,6 @@ function TdNode(data) {
 
 function TdNodeList(node) {
     if (!node) throw new Error("Node can't be null");
-
     this.node = node;
     this.nodes = [];
 }
@@ -20,14 +19,12 @@ TdNode.basic = {
     "label": "",
     "weight": 0,
     "opened": true,
-    "index": "",
-    "childNodes": null,
+    "index": 0,
+    "childNodes": null
 };
 // squeleton of a node, contains the extended (client side) properties of a node
 TdNode.extended = {
     "parent": null,
-    "next": null,
-    "previous": null,
     "bgcolor": "#ffffff",
     "hueRange": 360,
     "labelElement": null
@@ -110,6 +107,24 @@ TdNodeList.prototype = {
 };
 
 TdNode.prototype = {
+    head: function() {
+        return this.nodes()[0];
+    },
+    tail: function() {
+        return this.nodes().last;
+    },
+    next: function(){
+        if( this.isRoot()){
+            return null;
+        } else if( this.parent.nodes().length - this.index > 1) {
+            return this.parent.node( this.index + 1)
+        } else {
+            return null;
+        }
+    },
+    previous: function(){
+        return this.index > 0 ? this.node( index - 1) : null;
+    },
     path: function() {
         return this.parent ? this.parent.path() + "/" + this.index : "/" + this.index;
     },
@@ -117,7 +132,10 @@ TdNode.prototype = {
         return this.parent === null;
     },
     isTerminal: function() {
-        return this.childNodes.length === 0;
+        return this.nodes().length === 0;
+    },
+    node: function( i) {
+        return this.childNodes.nodes[i];
     },
     nodes: function() {
         return this.childNodes.nodes;
@@ -159,64 +177,6 @@ TdNode.prototype = {
     }
 };
 
-// Build an extended node tree
-var TdTree = function() {};
 
-TdTree.buildTree = function(data) {
-    var root;
-    var getNodeData = function(node) {
-        var attr, nodeData = {};
-        for (attr in node) {
-            if (attr !== "childNodes") nodeData[attr] = node[attr];
-        }
-        return nodeData;
-    };
 
-    (function walkDown(node, parent) {
-        var newNode;
 
-        if (!parent) {
-            newNode = root = new TdNode(getNodeData(node));
-        }
-        else {
-            newNode = new TdNode(getNodeData(node));
-            newNode.parent = parent;
-            parent.childNodes.pushNode(newNode);
-        }
-
-        if ("childNodes" in node) {
-            for (var i = 0; i < node.childNodes.length; i++) {
-                walkDown(node.childNodes[i], newNode);
-            }
-        }
-    })(data);
-
-    return root;
-};
-
-// remove non persistent properties from the node tree
-TdTree.filterTree = function(data) {
-    var root;
-
-    (function walkDown(node, parent) {
-        var newNode;
-
-        if (!parent) {
-            newNode = root = _.pick(node, _.keys(TdNode.basic), "_id");
-            newNode.childNodes = [];
-        }
-        else {
-            newNode = _.pick(node, _.keys(TdNode.basic));
-            newNode.childNodes = [];
-            parent.childNodes.push(newNode);
-        }
-
-        if ("childNodes" in node) {
-            for (var i = 0; i < node.nodes().length; i++) {
-                walkDown(node.nodes()[i], newNode);
-            }
-        }
-    })(data);
-
-    return root;
-};

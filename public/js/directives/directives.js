@@ -6,8 +6,9 @@ TdKeyboard.DELETE = 46;
 TdKeyboard.ENTER = 13;
 
 /* Directives */
+angular.module('App.Directives', [])
 
-todoApp.directive('tdMap', function mapFactory($compile) {
+.directive('tdMap', function mapFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
@@ -69,9 +70,9 @@ todoApp.directive('tdMap', function mapFactory($compile) {
             );
         }
     };
-});
+})
 
-todoApp.directive('tdNode', function nodeFactory($compile) {
+.directive('tdNode', function nodeFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
@@ -136,16 +137,16 @@ todoApp.directive('tdNode', function nodeFactory($compile) {
             layoutNode();
         }
     };
-});
+})
 
-todoApp.directive('tdLabel', function labelFactory($compile) {
+.directive('tdLabel', function labelFactory($compile) {
     return {
         restrict: 'E',
         terminal: true,
         scope: { node: '=tdNode'},
         template: '<div class="td-label"></div>',
         replace: true,
-        link: function updateLabel(scope, iElement, attrs) {
+        link: function (scope, iElement, attrs) {
             //console.log("call function updateLabel");
             //console.log( "node: " + JSON.stringify( scope.node));
             
@@ -158,71 +159,20 @@ todoApp.directive('tdLabel', function labelFactory($compile) {
 			var label = angular.element( '<input class="td-label-editor" type="text" ng-model="node.label" placeholder="{{node.label}}">');
             scope.node.labelElement = label;
 
-			label.bind( 'change', function(){
-				console.log("Catch event label change");
-                console.log( "Throw event save map");
-				scope.$emit('saveMap');
-			});
-            label.bind( 'keydown', function(event){
-                console.log("Catch event label keydown");
-                if(
-                    ( event.keyCode === TdKeyboard.BACK_SPACE || event.keyCode === TdKeyboard.DELETE )
-                    && event.target.value === ""
-                ){
-                    console.log("Delete node: " + scope.node);
-
-                    scope.node.delete();
-
-                    console.log( "Throw event redraw node: " + scope.node.parent);
-                    scope.$emit('redrawNode', { "targetPath": scope.node.parent.path()});
-
-                    if( scope.node.previous){
-                        scope.node.previous.focus();
-                    } else if( scope.node.parent){
-                        scope.node.parent.focus();
-                    } else if( scope.node.next){
-                        scope.node.next.focus();
-                    }
-
-                    console.log( "Throw event save map");
-                    scope.$emit('saveMap');
-
-                    if( event.preventDefaut) event.preventDefault();
-                    if( event.returnValue) event.returnValue = false;
-                };
-            });
-			label.bind( 'keypress', function(event){
-				console.log("Catch event label keypress");
-
-                if( event.keyCode === TdKeyboard.ENTER){
-                    console.log("Create sibling to node: " + scope.node);
-
-    				var newNode = scope.node.createSibling();
-
-                    console.log( "Throw event redraw node: " + scope.node.parent);
-    				scope.$emit('redrawNode', { "targetPath": scope.node.parent.path()});
-                    console.log( "Throw event save map");
-    				scope.$emit('saveMap');
-
-                    newNode.labelElement[0].focus();
-
-                    if( event.preventDefaut) event.preventDefault();
-                    if( event.returnValue) event.returnValue = false;
-                };
-			});
-            label.bind( 'input', function(event){
-                console.log("Catch event label input");
-            });
+			label.bind( 'change', $eventManager.onChange( event, scope.node));
+            label.bind( 'keydown', $eventManager.onKeydown(event, scope.node));
+			label.bind( 'keypress', $eventManager.onKeypress( event, scope.node));
+            label.bind( 'input', $eventManager.onInput( event, scope.node));
 			iElement.append( label);
             
             // Toggle the closed/opened state
-            function toggle() {
-                scope.node.opened = !scope.node.opened;
-                button.addClass( scope.node.opened ? "icon-minus-sign" : "icon-plus-sign");
-                button.removeClass( scope.node.opened ? "icon-plus-sign" : "icon-minus-sign");
-                // scope.$emit('toggleNode', { "targetPath": scope.node.parent.path});
-                scope.$emit('saveMap');
-            }
+            // function toggle() {
+            //     scope.node.opened = !scope.node.opened;
+            //     button.addClass( scope.node.opened ? "icon-minus-sign" : "icon-plus-sign");
+            //     button.removeClass( scope.node.opened ? "icon-plus-sign" : "icon-minus-sign");
+            //     // scope.$emit('toggleNode', { "targetPath": scope.node.parent.path});
+            //     scope.$emit('saveMap');
+            // }
             
             $compile(iElement.contents())(scope.$new());
         }

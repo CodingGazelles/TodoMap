@@ -1,22 +1,24 @@
 'use strict';
 
-/* Services */
 
-angular.module( 'dataServices', ['ngResource'])
-.factory('maps', function($resource) {
-    return $resource('/api/maps/:id', {id:'@id'}, {
-        getMap: {method: 'GET'},
-        saveMap: {method: 'PUT'}
-    });
+// Add property last to arrays
+Object.defineProperty(Array.prototype, 'last', {
+    enumerable: false,
+    configurable: true,
+    get: function() {
+        return this[this.length - 1];
+    },
+    set: undefined
 });
+
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 // TODO: use the debounce of the underscore library
-angular.module( 'utils', [])
-.factory('debounce', function($timeout, $q) {
+angular.module( 'App.Utils', [])
+.factory('$debounce', function($timeout, $q) {
     return function(func, wait, immediate) {
         var timeout;
         var deferred = $q.defer();

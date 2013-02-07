@@ -1,5 +1,17 @@
 'use strict';
 
-var todoApp = angular.module( 'todoApp', ['dataServices', 'utils']);
+var App = window.App = angular.module( 'App', 
+	[
+		'App.Controllers',
+		'App.Filters',
+		'App.DataServices', 
+		'App.AppServices', 
+		'App.Utils',
+		'App.Directives',
+		'App.Routes'
+	]
+);
+
+
 
 
