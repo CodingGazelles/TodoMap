@@ -1,32 +1,138 @@
 'use strict';
 
-/* Data Services */
+angular.module('App.Services', ['ngResource'])
 
-angular.module('App.DataServices', ['ngResource'])
+.factory('$storage', [ '$appScope', '$resource', '$injector', function($appScope, $resource, $injector) {
+    return {
+        store:  $resource(
+            '/api/maps/:id', 
+            {id: '@id'}, 
+            {
+                getMap: {method: 'GET'},
+                saveMap: {method: 'PUT'}
+            }
+        ),
 
-.factory('$storage', ['$resource', function($resource) {
-    return $resource('/api/maps/:id', {
-        id: '@id'
-    }, {
-        getMap: {
-            method: 'GET'
+        loadTree: function( mapId){
+            console.log("Load tree");
+            this.store.getMap(
+                {id: mapId},
+                this._onLoadSucceed,
+                this._onLoadFailed
+            );
         },
-        saveMap: {
-            method: 'PUT'
+
+        _onLoadSucceed: function( data){
+            console.log("Load map succeed");
+            // console.log("$scope.todoTree: " + JSON.stringify(data));
+            var tree = $injector.get('$storage')._extendTree( data);
+            $appScope.topScope().todoTree = tree;
+        },
+
+        _onLoadFailed: function( data){
+            console.log("Load map failed");
+            console.log("Returned data: " + data);
+            $appScope.topScope().todoTree = {
+                label: "error",
+                childNodes: []
+            };
+           // console.log("$scope.mapData: " + JSON.stringify(data));
+        },
+
+        _extendTree: function(data) {
+            console.log("Extend tree");
+
+            var root;
+            var getNodeData = function(node) {
+                    var attr, nodeData = {};
+                    for(attr in node) {
+                        if(attr !== "childNodes") nodeData[attr] = node[attr];
+                    }
+                    return nodeData;
+                };
+
+            (function walkDown(node, parent) {
+                var newNode;
+
+                if(!parent) {
+                    newNode = root = new TdNode(getNodeData(node));
+                } else {
+                    newNode = new TdNode(getNodeData(node));
+                    newNode.parent = parent;
+                    parent._pushNode(newNode);
+                }
+
+                if("childNodes" in node) {
+                    for(var i = 0; i < node.childNodes.length; i++) {
+                        walkDown(node.childNodes[i], newNode);
+                    }
+                }
+            })(data);
+
+            return root;
+        },
+
+        saveTree: function(){
+            console.log("Save tree");
+            // $debounce( this._saveTree(), 2000, false);
+        },
+
+        _saveTree: function(){
+            console.log("Save tree (debounced)");
+            
+            var todoData = TdTree.filterTree( $rootScope.todoTree);
+            // console.log("$scope.mapData: " + JSON.stringify( todoData));
+            
+            $storage.saveMap(
+                {id: todoData._id},
+                todoData,
+                function(data) { // SUCCESS
+                    console.log("call api maps.saveMap succeed");
+                    //console.log("$scope.mapData: " + JSON.stringify(data));
+                },
+                function(data) { // FAILURE
+                    console.log("call api maps.saveMap failed");
+                    //console.log("$scope.mapData: " + JSON.stringify(data));
+                }
+            );
+        },
+
+        // flatten the tree, ie, remove non persistent properties from the node tree
+        _flattenTree: function(data) {
+            console.log("flatten tree");
+
+            var root;
+
+            (function walkDown(node, parent) {
+                var newNode;
+
+                if(!parent) {
+                    newNode = root = _.pick(node, _.keys(TdNode.basic), "_id");
+                    newNode.childNodes = [];
+                } else {
+                    newNode = _.pick(node, _.keys(TdNode.basic));
+                    newNode.childNodes = [];
+                    parent.childNodes.push(newNode);
+                }
+
+                if("childNodes" in node) {
+                    for(var i = 0; i < node.nodes().length; i++) {
+                        walkDown(node.nodes()[i], newNode);
+                    }
+                }
+            })(data);
+
+            return root;
         }
-    });
-}]);
-
-/* Map Services */
-
-angular.module('App.AppServices', [])
+    };
+}])
 
 // filters the user event
 .factory('$eventManager', function() {
     return {
         onChange: function(event, node) {
             console.log("Catch event label change");
-            $treeManager.changeNode(node);
+            $treeManager.onChangedNode(node);
         },
 
         onKeydown: function(event, node) {
@@ -90,20 +196,21 @@ angular.module('App.AppServices', [])
 // updates the model
 .factory('$treeManager', function() {
     return {
-
-        changeNode: function(){
-            console.log("Throw event save map");
-            this.saveTree();
-        },
-
         deleteNode: function(node){
             console.log("Delete node: " + node);
+            if( node.isRoot()) throw new Error("Can't delete root");
             node.delete();
         },
 
-        createSiblingNode: function(node){
+        createSibling: function(node){
             console.log("Create sibling to node: " + node);
+            if( node.isRoot()) throw new Error("Can't create a sibling to root");
             var newNode = node.createSibling();
+        },
+
+        onChangedNode: function(node){
+            console.log("Changed node:" + node);
+            this.saveTree();
         },
 
         onSavingTree: function(){
@@ -113,113 +220,9 @@ angular.module('App.AppServices', [])
         },
 
         onSavedTree: function(){
-            console.log("Tree saved");
+            console.log("Saved tree");
             $rootScope.savedState = "Saved";
             $rootScope.$digest();
-        },
-        
-        loadTree: function( mapId){
-            console.log("Loading tree");
-            $storage.getMap(
-                {id: mapId},
-                function(data) { // SUCCESS
-                    console.log("call api maps.getMap succeed");
-                    // console.log("$scope.todoTree: " + JSON.stringify(data));
-                    
-                    var tree = TdTree.buildTree( data);
-                    $scope.todoTree = tree;
-                },
-                function(data) { // FAILURE
-                    console.log("call api maps.getMap failed");
-                    console.log("data: " + data);
-                    $scope.mapData = {
-                        label: "error",
-                        childNodes: []
-                    };
-                   // console.log("$scope.mapData: " + JSON.stringify(data));
-                }
-            );
-        },
-
-        saveTree: function(){
-            $debounce( this._saveTree(), 2000, false);
-        },
-
-        _saveTree: function(){
-            console.log("Save tree");
-            
-            var todoData = TdTree.filterTree( $rootScope.todoTree);
-            // console.log("$scope.mapData: " + JSON.stringify( todoData));
-            
-            $storage.saveMap(
-                {id: todoData._id},
-                todoData,
-                function(data) { // SUCCESS
-                    console.log("call api maps.saveMap succeed");
-                    //console.log("$scope.mapData: " + JSON.stringify(data));
-                },
-                function(data) { // FAILURE
-                    console.log("call api maps.saveMap failed");
-                    //console.log("$scope.mapData: " + JSON.stringify(data));
-                }
-            );
-        },
-
-        buildTree: function(data) {
-            var root;
-            var getNodeData = function(node) {
-                    var attr, nodeData = {};
-                    for(attr in node) {
-                        if(attr !== "childNodes") nodeData[attr] = node[attr];
-                    }
-                    return nodeData;
-                };
-
-            (function walkDown(node, parent) {
-                var newNode;
-
-                if(!parent) {
-                    newNode = root = new TdNode(getNodeData(node));
-                } else {
-                    newNode = new TdNode(getNodeData(node));
-                    newNode.parent = parent;
-                    parent.childNodes.pushNode(newNode);
-                }
-
-                if("childNodes" in node) {
-                    for(var i = 0; i < node.childNodes.length; i++) {
-                        walkDown(node.childNodes[i], newNode);
-                    }
-                }
-            })(data);
-
-            return root;
-        },
-
-        // flatten the tree, ie, remove non persistent properties from the node tree
-        flattenTree: function(data) {
-            var root;
-
-            (function walkDown(node, parent) {
-                var newNode;
-
-                if(!parent) {
-                    newNode = root = _.pick(node, _.keys(TdNode.basic), "_id");
-                    newNode.childNodes = [];
-                } else {
-                    newNode = _.pick(node, _.keys(TdNode.basic));
-                    newNode.childNodes = [];
-                    parent.childNodes.push(newNode);
-                }
-
-                if("childNodes" in node) {
-                    for(var i = 0; i < node.nodes().length; i++) {
-                        walkDown(node.nodes()[i], newNode);
-                    }
-                }
-            })(data);
-
-            return root;
         }
     };
 });

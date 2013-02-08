@@ -13,12 +13,8 @@ describe("Midway: Testing Modules", function() {
       expect(module).to.be.ok;
     });
 
-    it("should have a module App.DataServices registered", function(){
-      expect( angular.module('App.DataServices')).to.be.ok;
-    });
-
-    it("should have a module App.AppServices registered", function(){
-      expect( angular.module('App.AppServices')).to.be.ok;
+    it("should have a module App.Services registered", function(){
+      expect( angular.module('App.Services')).to.be.ok;
     });
 
     describe("Dependencies:", function() {
@@ -48,12 +44,8 @@ describe("Midway: Testing Modules", function() {
         expect(hasModule('App.Routes')).to.equal(true);
       });
 
-      it("should have App.DataServices as a dependency", function() {
-        expect(hasModule('App.DataServices')).to.equal(true);
-      });
-
-      it("should have App.AppServices as a dependency", function() {
-        expect(hasModule('App.AppServices')).to.equal(true);
+      it("should have App.Services as a dependency", function() {
+        expect(hasModule('App.Services')).to.equal(true);
       });
     });
   });

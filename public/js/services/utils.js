@@ -11,13 +11,43 @@ Object.defineProperty(Array.prototype, 'last', {
     set: undefined
 });
 
+angular.module( 'App.Utils', [])
+
+.factory('$appScope', ['$rootScope', function($rootScope) {
+    return {
+        topScope: function() {
+            return this.scope(document);
+        },
+
+        scope: function(element) {
+            return angular.element(element).scope();
+        },
+
+        rootScope: function() {
+            return $rootScope;
+        },
+
+        safeApply: function(fn, $scope) {
+            $scope = $scope || this.topScope();
+            fn = fn ||
+            function() {};
+            if($scope.$$phase) {
+                fn();
+            } else {
+                $scope.$apply(function() {
+                    fn();
+                });
+            }
+        }
+    };
+}])
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 // TODO: use the debounce of the underscore library
-angular.module( 'App.Utils', [])
+
 .factory('$debounce', function($timeout, $q) {
     return function(func, wait, immediate) {
         var timeout;

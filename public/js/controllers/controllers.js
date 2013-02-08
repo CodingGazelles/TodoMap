@@ -21,10 +21,9 @@ angular.module('App.Controllers', [])
 
 }])
 
-.controller('AppCtrl', function($scope, $treeManager){
-    $scope.todoTree = {};
-    $treeManager.loadTree("510bf39e5ba1aa4c95000001");
-});
+.controller('AppCtrl', [ '$appScope', '$storage', function($appScope, $storage){
+    $storage.loadTree("510bf39e5ba1aa4c95000001");
+}]);
 
 
 

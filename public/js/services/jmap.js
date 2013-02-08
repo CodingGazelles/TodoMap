@@ -3,7 +3,7 @@ var TdColor = function(){};
 
 TdColor.colorize = function ( node){
     if( !node) throw new Error("Node can't be null");
-    if( node.nodes().length === 0) return;
+    if( node.nodes.length === 0) return;
 
     var parentColor, hueRange, hueOffset;
 
@@ -18,9 +18,9 @@ TdColor.colorize = function ( node){
     }
 
     hueRange = node.hueRange || 360;
-    hueOffset = hueRange / node.nodes().length;
+    hueOffset = hueRange / node.nodes.length;
 
-    node.nodes().forEach( function( child, index) {
+    node.nodes.forEach( function( child, index) {
         child.bgcolor = {
             h: (parentColor.h + hueOffset * index) % 360,
             s: parentColor.s,

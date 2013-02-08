@@ -8,7 +8,7 @@ TdKeyboard.ENTER = 13;
 /* Directives */
 angular.module('App.Directives', [])
 
-.directive('tdMap', function mapFactory($compile) {
+.directive('tdMap', function mapFactory($compile, $appScope) {
     return {
         restrict: 'E',
         terminal: true,
@@ -16,31 +16,31 @@ angular.module('App.Directives', [])
         template: '<div class="td-top-node"></div>',
         replace: true,
         link: function linkMap(scope, iElement, iAttrs) {
-            console.log("call function link of directive map");
+            console.log("Link directive tdMap");
             
             function updateMap() {
-                console.log("call function updateMap");
+                console.log("Update map");
                 
-                if (scope.node.label !== undefined) {
+                if (scope.node !== undefined) {
                     
                     iElement.contents().remove();
                     
                     // start squarifying
                     TdColor.colorize( scope.node);
-                    var mapBuilder = new MapBuilder(scope.node.nodes(), iElement[0].getBoundingClientRect());
+                    var mapBuilder = new MapBuilder(scope.node.nodes, iElement[0].getBoundingClientRect());
                     mapBuilder.squarify();
                     
-                    if (angular.isArray(scope.node.nodes())) {
-                        iElement.append('<td-node ng-repeat="child in node.nodes()" td-node="child"></td-node>');
+                    if (angular.isArray(scope.node.nodes)) {
+                        iElement.append('<td-node ng-repeat="child in node.nodes" td-node="child"></td-node>');
                     }
                     $compile(iElement.contents())(scope.$new());
                 }
             }
 
             // watch map loading
-            scope.$watch(
+            $appScope.topScope().$watch(
                 function() {
-                    return scope.node.label;
+                    return scope.node === undefined;
                 },
                 function watchMapLoading(newValue, oldValue) {
                     console.log("callback function watchMapLoading");
@@ -80,10 +80,8 @@ angular.module('App.Directives', [])
         template: '<div class="td-node"></div>',
         replace: true,
         link: function(scope, iElement, attrs) {
-            //            console.log("call function link of directive node");
+            console.log("Link directive tdNode");
             //            console.log("node: " + scope.node.label);
-
-            scope.node.opened = true;           // temp
 
             function layoutNode() {
                 console.log( "Layout node:" + scope.node);
@@ -110,16 +108,16 @@ angular.module('App.Directives', [])
                 iElement.append( labelElement);
 
                 // define the childnode box of the node
-                if (angular.isArray(scope.node.nodes())) {
+                if (angular.isArray(scope.node.nodes)) {
                     childElement = angular.element(
-                        '<div class="td-child-nodes"><td-node ng-repeat="child in node.nodes()" td-node="child"></td-node></div>');
+                        '<div class="td-child-nodes"><td-node ng-repeat="child in node.nodes" td-node="child"></td-node></div>');
                     childElement.css('top', "20px");
                     childElement.css('height', (height - 20).toFixed(0) + "px");
                     iElement.append(childElement);
 
                     // start squarifying
                     TdColor.colorize( scope.node);
-                    var mapBuilder = new MapBuilder(scope.node.nodes(), childElement[0].getBoundingClientRect());
+                    var mapBuilder = new MapBuilder(scope.node.nodes, childElement[0].getBoundingClientRect());
                     mapBuilder.squarify();
                 }
 

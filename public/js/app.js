@@ -4,8 +4,7 @@ var App = window.App = angular.module( 'App',
 	[
 		'App.Controllers',
 		'App.Filters',
-		'App.DataServices', 
-		'App.AppServices', 
+		'App.Services', 
 		'App.Utils',
 		'App.Directives',
 		'App.Routes'
