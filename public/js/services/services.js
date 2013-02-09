@@ -197,14 +197,22 @@ angular.module('App.Services', ['ngResource'])
 .factory('$treeManager', function() {
     return {
         deleteNode: function(node){
+            if( !node) throw new Error("Argument can't be undefined");
+            if( node.isRoot()){
+                console.log('WARN: tried to delete root');
+                throw new Error("Can't delete root");
+            }
             console.log("Delete node: " + node);
-            if( node.isRoot()) throw new Error("Can't delete root");
             node.delete();
         },
 
         createSibling: function(node){
+            if( !node) throw new Error("Argument can't be undefined");
+            if( node.isRoot()){ 
+                console.log('WARN: tried to create a sibling of root');
+                throw new Error("Can't create a sibling to root");
+            }
             console.log("Create sibling to node: " + node);
-            if( node.isRoot()) throw new Error("Can't create a sibling to root");
             var newNode = node.createSibling();
         },
 

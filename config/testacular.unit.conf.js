@@ -1,9 +1,13 @@
 basePath = '../';
 
 files = [
-    MOCHA,
-    MOCHA_ADAPTER,
-    './config/mocha.conf.js',
+    // MOCHA,
+    // MOCHA_ADAPTER,
+    // './config/mocha.conf.js',
+
+    JASMINE,
+    JASMINE_ADAPTER,
+    
 
     //3rd Party Code
     './public/lib/angular/angular.min.js',
@@ -20,9 +24,11 @@ files = [
     './public/js/app.js',
 
     //Test-Specific Code
-    './node_modules/chai/chai.js',
-    './test/lib/chai-should.js',
-    './test/lib/chai-expect.js',
+    // './node_modules/chai/chai.js',
+    // './test/lib/chai-should.js',
+    // './test/lib/chai-expect.js',
+
+    './test/lib/jasmine-1.3.1/jasmine-html.js',
     './test/lib/angular/angular-mocks.js',
 
     //Test-Specs

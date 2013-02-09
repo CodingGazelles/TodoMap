@@ -1,3 +1,20 @@
+
+// squeleton of a node, contains the persitant properties of a node
+TdNode.basic = {
+    "label": "",
+    "weight": 0,
+    "opened": true,
+    "index": 0,
+    "childNodes": null
+};
+// squeleton of a node, contains the extended (client side) properties of a node
+TdNode.extended = {
+    "parent": null,
+    "bgcolor": "#ffffff",
+    "hueRange": 360,
+    "labelElement": null
+};
+
 function TdNode(data) {
     _.defaults(this, TdNode.basic, TdNode.extended);
     this.nodes = [];
@@ -15,21 +32,7 @@ function TdNodeList(node) {
     // this.nodes = [];
 }
 
-// squeleton of a node, contains the persitant properties of a node
-TdNode.basic = {
-    "label": "",
-    "weight": 0,
-    "opened": true,
-    "index": 0,
-    "childNodes": null
-};
-// squeleton of a node, contains the extended (client side) properties of a node
-TdNode.extended = {
-    "parent": null,
-    "bgcolor": "#ffffff",
-    "hueRange": 360,
-    "labelElement": null
-};
+
 
 TdNodeList.prototype = {
     
@@ -57,29 +60,29 @@ TdNodeList.prototype = {
             this.indexNodes();
         }
     },
-    deleteNode: function(index) {
-        if (index < 0) throw new RangeError("Index of node to delete can't be negative");
-        if (index > this.length) throw new RangeError("Index of node to delete can't be higher than list length");
+    // deleteNode: function(index) {
+    //     if (index < 0) throw new RangeError("Index of node to delete can't be negative");
+    //     if (index > this.length) throw new RangeError("Index of node to delete can't be higher than list length");
 
-        var previous = this.nodes[index - 1],
-            next = this.nodes[index];
+    //     var previous = this.nodes[index - 1],
+    //         next = this.nodes[index];
 
-        if (previous && next) {
-            // previous.next = next;
-            // next.previous = previous;
-        }
-        else if (previous) {
-            // previous.next = null;
-        }
-        else if (next) {
-            // next.previous = null;
-        }
-        this.nodes.splice(index, 1);
-        this.indexNodes();
-    },
-    moveNode: function(node, index) {
+    //     if (previous && next) {
+    //         // previous.next = next;
+    //         // next.previous = previous;
+    //     }
+    //     else if (previous) {
+    //         // previous.next = null;
+    //     }
+    //     else if (next) {
+    //         // next.previous = null;
+    //     }
+    //     this.nodes.splice(index, 1);
+    //     this.indexNodes();
+    // },
+    // moveNode: function(node, index) {
 
-    },
+    // },
     
     // getNode: function(index) {
     //     return this.nodes[index];

@@ -6,16 +6,16 @@ describe("Unit: Testing service $treeManager ", function() {
     beforeEach(angular.mock.module('App'));
 
         it('should contain an $treeManager service', inject(function($treeManager) {
-            expect($treeManager).to.be.ok;
+            expect($treeManager).toBeTruthy();
         }));
 
         it('should have a working $treeManager', inject(function($treeManager) {
-            expect($treeManager.deleteNode).to.be.ok;
-            expect($treeManager.createSibling).to.be.ok;
+            expect($treeManager.deleteNode).toBeTruthy();
+            expect($treeManager.createSibling).toBeTruthy();
 
         }));
 
-        describe(": delete a node", function() {
+        describe("/ ", function() {
 
             var root;
             var city, people;
@@ -46,42 +46,53 @@ describe("Unit: Testing service $treeManager ", function() {
                 people = root.nodes[1];
             }));
 
+            it("should be impossible to delete nothing", inject(function($treeManager) {
+                expect($treeManager.deleteNode).toThrow();
+            }));
+
             it("should be impossible to delete the root", inject(function($treeManager) {
-                expect($treeManager.deleteNode(root)).to.
-                throw();
+                expect((function(){ $treeManager.deleteNode(root)})).toThrow();
             }));
 
             it("should be impossible to create a sibling to root", inject(function($treeManager) {
-                expect($treeManager.createSibling(root)).to.
-                throw(/sibling/);
+                expect((function(){ $treeManager.createSibling(root)})).toThrow();
+            }));
+
+            it("should be really impossible to create a sibling to root", inject(function($treeManager) {
+                try{
+                    $treeManager.createSibling(root)
+                } catch(e){
+                    //nothing
+                }
+                expect(root.next()).toBeNull();
             }));
 
             it("should be possible to delete city", inject(function($treeManager) {
                 $treeManager.deleteNode(city);
-                expect(root.nodes.length).to.equal(1);
-                expect(root.nodes.indexOf(city)).to.equal(-1);
+                expect(root.nodes.length).toEqual(1);
+                expect(root.nodes.indexOf(city)).toEqual(-1);
             }));
 
             it("should updates the links of city", inject(function($treeManager) {
                 $treeManager.deleteNode(city);
-                expect(city.parent).to.be.null;
+                expect(city.parent).toBeNull();
             }));
 
             it("should updates the links of root", inject(function($treeManager) {
                 $treeManager.deleteNode(city);
-                expect(root.tail()).to.deep.equal(people);
-                expect(root.head()).to.deep.equal(people);
+                expect(root.tail()).toEqual(people);
+                expect(root.head()).toEqual(people);
             }));
 
             it("should updates the links of people", inject(function($treeManager) {
                 $treeManager.deleteNode(city);
-                expect(people.next()).to.be.null;
-                expect(people.previous()).to.be.null;
+                expect(people.next()).toBeNull();
+                expect(people.previous()).toBeNull();
             }));
 
             it("should reindex the tree", inject(function($treeManager) {
                 $treeManager.deleteNode(city);
-                expect(people.index).to.equal(0);
+                expect(people.index).toEqual(0);
             }));
         });
 });
