@@ -16,7 +16,7 @@ angular.module('App.Controllers', [])
     // todo: refactor, don't use digest incontrollers
     $rootScope.resizeMap = function(){
         console.log("Resizing map");
-        $debounce( $rootScope.$digest(), 2000, false);
+        $debounce( $rootScope.$digest, 2000, false);
     };
 
 }])
