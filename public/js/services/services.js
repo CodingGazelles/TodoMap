@@ -59,7 +59,7 @@ angular.module('App.Services', ['ngResource'])
                 } else {
                     newNode = new TdNode(getNodeData(node));
                     newNode.parent = parent;
-                    parent._pushNode(newNode);
+                    parent._pushChild(newNode);
                 }
 
                 if("childNodes" in node) {
@@ -197,7 +197,7 @@ angular.module('App.Services', ['ngResource'])
 .factory('$treeManager', function() {
     return {
         deleteNode: function(node){
-            if( !node) throw new Error("Argument can't be undefined");
+            if( !node) throw new Error("Node can't be null or undefined");
             if( node.isRoot()){
                 console.log('WARN: tried to delete root');
                 throw new Error("Can't delete root");
@@ -213,7 +213,7 @@ angular.module('App.Services', ['ngResource'])
                 throw new Error("Can't create a sibling to root");
             }
             console.log("Create sibling to node: " + node);
-            var newNode = node.createSibling();
+            return node.createSibling();
         },
 
         onChangedNode: function(node){
