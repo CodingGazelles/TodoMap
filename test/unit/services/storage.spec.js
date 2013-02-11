@@ -66,7 +66,7 @@ describe("Unit: Testing service $storage ", function() {
                     "index": 0,
                     "childNodes": [{
                         "label": "Paris",
-                        "weight": 32.778,
+                        "weight": 100,
                         "opened": true,
                         "index": 0,
                         "childNodes": []
@@ -79,7 +79,7 @@ describe("Unit: Testing service $storage ", function() {
                     "childNodes": []
                 }, {
                     "label": "Food",
-                    "weight": 38.889,
+                    "weight": 28.333,
                     "opened": true,
                     "index": 2,
                     "childNodes": []
@@ -180,37 +180,37 @@ describe("Unit: Testing service $storage ", function() {
             // expect the copy to be OK
             // test root
             expect(root.parent).toEqual(null);
-            expect(root.label).toEqual(jsonObj.label);
-            expect(root.weight).toEqual(jsonObj.weight);
-            expect(root.opened).toEqual(jsonObj.opened);
-            expect(root.index).toEqual(jsonObj.index);
+            expect(root.label).toEqual("root");
+            expect(root.weight).toEqual(100);
+            expect(root.opened).toEqual(true);
+            expect(root.index).toEqual(0);
         });
 
         if('expects city values to be ok ', function() {
             // test City
             expect(city.parent).toEqual(root);
-            expect(city.label).toEqual(jsonObj.childNodes[0].label);
-            expect(city.weight).toEqual(jsonObj.childNodes[0].weight);
-            expect(city.opened).toEqual(jsonObj.childNodes[0].opened);
-            expect(city.index).toEqual(jsonObj.index);
+            expect(city.label).toEqual("City");
+            expect(city.weight).toEqual(32.778);
+            expect(city.opened).toEqual(true);
+            expect(city.index).toEqual(0);
         });
 
         if('expects paris values to be ok ', function() {
             // test Paris
             expect(paris.parent).toEqual(root);
-            expect(paris.label).toEqual(jsonObj.childNodes[0].label);
-            expect(paris.weight).toEqual(jsonObj.childNodes[0].weight);
-            expect(paris.opened).toEqual(jsonObj.childNodes[0].opened);
-            expect(paris.index).toEqual(jsonObj.index);
+            expect(paris.label).toEqual("Paris");
+            expect(paris.weight).toEqual(100);
+            expect(paris.opened).toEqual(true);
+            expect(paris.index).toEqual(0);
         });
 
         if('expects people values to be ok ', function() {
             // test People
             expect(people.parent).toEqual(root);
-            expect(people.label).toEqual(jsonObj.childNodes[1].label);
-            expect(people.weight).toEqual(jsonObj.childNodes[1].weight);
-            expect(people.opened).toEqual(jsonObj.childNodes[1].opened);
-            expect(people.index).toEqual(jsonObj.index);
+            expect(people.label).toEqual("People");
+            expect(people.weight).toEqual(38.889);
+            expect(people.opened).toEqual(true);
+            expect(people.index).toEqual(1);
         });
 
         // root & leaves
