@@ -18,85 +18,12 @@ TdNode.extended = {
 function TdNode(data) {
     _.defaults(this, TdNode.basic, TdNode.extended);
     this.nodes = [];
-    // this.childNodes = new TdNodeList(this);
     data = data || {};
     var key;
     for (key in data) {
         this[key] = data[key];
     }
 }
-
-function TdNodeList(node) {
-    // if (!node) throw new Error("Node can't be null");
-    // this.node = node;
-    // this.nodes = [];
-}
-
-
-
-TdNodeList.prototype = {
-    
-    insertNode: function(node, index) {
-        if (index < 0) throw new RangeError("Index of node to insert can't be negative");
-        if (index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
-
-        if (index === this.length) {
-            this.pushNode(node);
-        }
-        else {
-            var previous = this.nodes[index - 1],
-                next = this.nodes[index];
-
-            if (previous) {
-                // previous.next = node;
-                // node.previous = previous;
-            }
-
-            if (next) {
-                // next.previous = node;
-                // node.next = next;
-            }
-            this.nodes.splice(index, 0, node);
-            this.indexNodes();
-        }
-    },
-    // deleteNode: function(index) {
-    //     if (index < 0) throw new RangeError("Index of node to delete can't be negative");
-    //     if (index > this.length) throw new RangeError("Index of node to delete can't be higher than list length");
-
-    //     var previous = this.nodes[index - 1],
-    //         next = this.nodes[index];
-
-    //     if (previous && next) {
-    //         // previous.next = next;
-    //         // next.previous = previous;
-    //     }
-    //     else if (previous) {
-    //         // previous.next = null;
-    //     }
-    //     else if (next) {
-    //         // next.previous = null;
-    //     }
-    //     this.nodes.splice(index, 1);
-    //     this.indexNodes();
-    // },
-    // moveNode: function(node, index) {
-
-    // },
-    
-    // getNode: function(index) {
-    //     return this.nodes[index];
-    // },
-    // length: function() {
-    //     return this.nodes.length;
-    // },
-    // head: function() {
-    //     return this.nodes[0];
-    // },
-    // tail: function() {
-    //     return this.nodes.last;
-    // }
-};
 
 TdNode.prototype = {
     
@@ -145,16 +72,10 @@ TdNode.prototype = {
         return this.nodes[i];
     },
 
-    insertChild: function(node, at) {
-        node.parent = this;
-        this.nodes.insertNode(node, at);
-        this.rebaseWeight();
-    },
-
     createSibling: function() {
         var newNode = new TdNode();
         newNode.weight = this.weight;
-        this.parent.insertChild(newNode, this.index + 1);
+        this.parent._insertChild(newNode, this.index + 1);
         return newNode;
     },
 
@@ -163,18 +84,39 @@ TdNode.prototype = {
         this.parent = null;
     },
 
-    _pushNode: function(node) {
+    _pushChild: function(node) {
+        if(!node) throw new Error("Node can't be null or undefined");
+
         this.nodes.push(node);
-        this._indexNodes();
+        this._reindexNodes();
+        // this._rebaseWeight();
     },
 
-    _deleteChild: function(index) {
-        this.nodes.splice(index, 1);
-        this._indexNodes();
+    _insertChild: function(node, index) {
+        if(index === null || index === undefined) throw new Error("Index can't be null or undefined: " + index);
+        if (index < 0) throw new RangeError("Index of node to insert can't be negative");
+        if (index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
+
+        node.parent = this;
+        this.nodes.splice(index, 0, node);
+        this._reindexNodes();
         this._rebaseWeight();
     },
 
-    _indexNodes: function() {
+    _deleteChild: function(index) {
+        if(index === null || index === undefined) throw new Error("Index can't be null or undefined: " + index);
+        if (index < 0) throw new RangeError("Index of node to insert can't be negative");
+        if (index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
+
+        var node = this.nodes[index];
+        node.parent = null;
+        this.nodes.splice(index, 1);
+        this._reindexNodes();
+        this._rebaseWeight();
+        return node;
+    },
+
+    _reindexNodes: function() {
         this.nodes.forEach(function(node, index) {
             node.index = index;
         });
@@ -186,7 +128,7 @@ TdNode.prototype = {
             totalWeight += node.weight;
         });
         this.nodes.forEach(function(node) {
-            node.weight = node.weight * 100 / totalWeight;
+            node.weight = Math.round( node.weight * 100 / totalWeight * 1000) / 1000;
         });
     },
     // focus: function() {
