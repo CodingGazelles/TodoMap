@@ -127,74 +127,8 @@ angular.module('App.Services', ['ngResource'])
     };
 }])
 
-// filters the user event
-.factory('$eventManager', function() {
-    return {
-        onChange: function(event, node) {
-            console.log("Catch event label change");
-            $treeManager.onChangedNode(node);
-        },
-
-        onKeydown: function(event, node) {
-            console.log("Catch event label keydown");
-            if(
-                (event.keyCode === TdKeyboard.BACK_SPACE || event.keyCode === TdKeyboard.DELETE) 
-                && event.target.value === ""
-            ){
-                console.log("Delete node: " + scope.node);
-
-                $treeManager.deleteNode( node);
-
-                console.log("Throw event redraw node: " + scope.node.parent);
-                scope.$emit('redrawNode', {
-                    "targetPath": scope.node.parent.path()
-                });
-
-                if(scope.node.previous) {
-                    scope.node.previous.focus();
-                } else if(scope.node.parent) {
-                    scope.node.parent.focus();
-                } else if(scope.node.next) {
-                    scope.node.next.focus();
-                }
-
-                console.log("Throw event save map");
-                scope.$emit('saveMap');
-
-                if(event.preventDefaut) event.preventDefault();
-                if(event.returnValue) event.returnValue = false;
-            };
-        },
-
-        onKeypress: function(event, node) {
-            console.log("Catch event label keypress");
-
-            if(event.keyCode === TdKeyboard.ENTER) {
-                
-                $treeManager.createSibling( scope.node);
-
-                console.log("Throw event redraw node: " + scope.node.parent);
-                scope.$emit('redrawNode', {
-                    "targetPath": scope.node.parent.path()
-                });
-                console.log("Throw event save map");
-                scope.$emit('saveMap');
-
-                newNode.labelElement[0].focus();
-
-                if(event.preventDefaut) event.preventDefault();
-                if(event.returnValue) event.returnValue = false;
-            };
-        },
-
-        onInput: function(event, node) {
-            console.log("Catch event label input");
-        }
-    };
-})
-
 // updates the model
-.factory('$treeManager', function() {
+.factory('$treeManager', ['$storage', '$rootScope', function($storage, $rootScope) {
     return {
         deleteNode: function(node){
             if( !node) throw new Error("Node can't be null or undefined");
@@ -216,9 +150,9 @@ angular.module('App.Services', ['ngResource'])
             return node.createSibling();
         },
 
-        onChangedNode: function(node){
-            console.log("Changed node:" + node);
-            this.saveTree();
+        onChangedTree: function(){
+            console.log("Changed tree");
+            $storage.saveTree();
         },
 
         onSavingTree: function(){
@@ -233,4 +167,124 @@ angular.module('App.Services', ['ngResource'])
             $rootScope.$digest();
         }
     };
-});
+}])
+
+.factory('$mapManager', ['$appScope', function($appScope) {
+    return {
+        // todo: ajouter map builder
+
+        colorizeBranch: function(node){
+            if( !node) throw new Error("Node can't be null");
+            if( node.nodes.length === 0) return;
+
+            var parentColor, hueRange, hueOffset;
+
+            if( node.bgcolor.h && node.bgcolor.s && node.bgcolor.v){
+                parentColor =  {
+                    h: node.bgcolor.h, 
+                    s: node.bgcolor.s * 0.65, 
+                    v: node.bgcolor.v
+                };
+            } else {
+                parentColor = {h: 0, s: 0.9, v: 1};
+            }
+
+            hueRange = node.hueRange || 360;
+            hueOffset = hueRange / node.nodes.length;
+
+            node.nodes.forEach( function( child, index) {
+                child.bgcolor = {
+                    h: (parentColor.h + hueOffset * index) % 360,
+                    s: parentColor.s,
+                    v: parentColor.v
+                };
+                child.hueRange = hueOffset;
+            });
+        },
+
+        squarifyBranch: function(node, rectangle){
+            var mapBuilder = new MapBuilder(node.nodes, rectangle);
+            mapBuilder.squarify();
+        },
+
+        toHexString: function(color){
+            return tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
+        },
+
+        redrawNode: function(node) {
+            console.log("Throw event redraw node: " + node);
+            $appScope.topScope().$broadcast('redrawNode', {
+                "targetPath": node.path()
+            });
+        },
+
+        focusOnNode: function(node) {
+            console.log("Throw event focus on node: " + node);
+            $appScope.topScope().$broadcast('focusOnLabel', {
+                "targetPath": node.path()
+            });
+            
+        }
+    };
+}])
+
+// filters the user event
+.factory('$eventManager', [ '$treeManager', '$mapManager',  function($treeManager, $mapManager) {
+    return {
+        onChange: function(event, node) {
+            console.log("Catch event label change");
+            $treeManager.onChangedTree();
+        },
+
+        onKeydown: function(event, node) {
+            console.log("Catch event label keydown");
+            if((event.keyCode === TdKeyboard.BACK_SPACE || event.keyCode === TdKeyboard.DELETE) 
+                && event.target.value === ""
+            ){
+                if(event.preventDefaut) event.preventDefault();
+                if(event.returnValue) event.returnValue = false;
+
+                console.log("Catch delete node event: " + node);
+
+                $treeManager.deleteNode( node);
+                $treeManager.onChangedTree();
+                $mapManager.redrawNode(node.parent);
+
+                if(node.previous) {
+                    $mapManager.focusOnNode(node.previous());
+                } else if(node.parent) {
+                    $mapManager.focusOnNode(node.parent());
+                } else if(node.next) {
+                    $mapManager.focusOnNode(node.next());
+                }
+            };
+        },
+
+        onKeypress: function(event, node) {
+            console.log("Catch event label keypress");
+
+            if(event.keyCode === TdKeyboard.ENTER) {
+                if(event.preventDefaut) event.preventDefault();
+                if(event.returnValue) event.returnValue = false;
+                
+                $treeManager.createSibling( scope.node);
+                $treeManager.onChangedTree(node);
+
+                console.log("Throw event redraw node: " + scope.node.parent);
+                scope.$emit('redrawNode', {
+                    "targetPath": scope.node.parent.path()
+                });
+
+                newNode.labelElement[0].focus();
+
+                
+            };
+        },
+
+        onInput: function(event, node) {
+            console.log("Catch event label input");
+        }
+    };
+}])
+
+;

@@ -81,7 +81,7 @@ TdNode.prototype = {
 
     delete: function() {
         this.parent._deleteChild(this.index);
-        this.parent = null;
+        // this.parent = null;
     },
 
     _pushChild: function(node) {
@@ -109,7 +109,7 @@ TdNode.prototype = {
         if (index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
 
         var node = this.nodes[index];
-        node.parent = null;
+        // node.parent = null;
         this.nodes.splice(index, 1);
         this._reindexNodes();
         this._rebaseWeight();
@@ -131,11 +131,7 @@ TdNode.prototype = {
             node.weight = Math.round( node.weight * 100 / totalWeight * 1000) / 1000;
         });
     },
-    // focus: function() {
-    //     if (this.labelElement) {
-    //         this.labelElement[0].focus();
-    //     }
-    // },
+
     toString: function() {
         return "TdNode " + this.path() + " (" + this.label + ")";
     }

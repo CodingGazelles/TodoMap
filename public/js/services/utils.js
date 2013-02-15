@@ -80,7 +80,7 @@ angular.module( 'App.Utils', [])
 .factory('$debounce', function provideDebounce() {
 	return function(func, wait, immediate){
         // console.log("Building debounced version of fn: " + arguments[0].slice(0, Math.min(10, arguments[0].length)) + ", wait: " + arguments[1] + ", immediate: " + arguments[2]);
-        console.log("Building debounced version of fn: " + arguments[0] + ", wait: " + arguments[1] + ", immediate: " + arguments[2]);
+        // console.log("Building debounced version of fn: " + arguments[0] + ", wait: " + arguments[1] + ", immediate: " + arguments[2]);
         return _.debounce( func, wait, immediate);
     };
 })

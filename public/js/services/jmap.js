@@ -1,38 +1,4 @@
 
-var TdColor = function(){};
-
-TdColor.colorize = function ( node){
-    if( !node) throw new Error("Node can't be null");
-    if( node.nodes.length === 0) return;
-
-    var parentColor, hueRange, hueOffset;
-
-    if( node.bgcolor.h && node.bgcolor.s && node.bgcolor.v){
-        parentColor =  {
-            h: node.bgcolor.h, 
-            s: node.bgcolor.s * 0.65, 
-            v: node.bgcolor.v
-        };
-    } else {
-        parentColor = {h: 0, s: 0.9, v: 1};
-    }
-
-    hueRange = node.hueRange || 360;
-    hueOffset = hueRange / node.nodes.length;
-
-    node.nodes.forEach( function( child, index) {
-        child.bgcolor = {
-            h: (parentColor.h + hueOffset * index) % 360,
-            s: parentColor.s,
-            v: parentColor.v
-        };
-        child.hueRange = hueOffset;
-    });
-}
-
-TdColor.toHexString = function( color){
-    return tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
-}
 
 function MapBuilder(nodeArray, rectangle) {
     this.pendingNodes = nodeArray.slice();              // nodes without position
