@@ -1,35 +1,31 @@
 var CONFIG;
 
-(function() {
+(function () {
 
-var appPrefix = 'app/';
-var templateUrlPrefix = 'templates/';
-var appVersion = 8;
+    var appPrefix = 'public/';
+    var appVersion = 1;
 
-CONFIG = {
+    CONFIG = {
 
-  version : appVersion,
+        version: appVersion,
 
-  baseDirectory : appPrefix,
-  templateDirectory : templateUrlPrefix,
-  templateFileQuerystring : "?v=" + appVersion,
+        baseDirectory: appPrefix,
+        templateFileQuerystring: "?v=" + appVersion,
 
-  routing : {
+        routing: {
 
-    prefix : '!',
-    html5Mode : false
+            prefix: '!',
+            html5Mode: false
 
-  },
+        },
 
-  viewUrlPrefix : templateUrlPrefix + 'views/',
-  partialUrlPrefix : templateUrlPrefix + 'partials/',
+        viewUrlPrefix: 'views/',
+        partialUrlPrefix: 'partials/',
 
-  templateFileSuffix : '_tpl.html',
+        prepareViewTemplateUrl: function (url) {
+            return this.viewUrlPrefix + url;
+        }
 
-  prepareViewTemplateUrl : function(url) {
-    return this.viewUrlPrefix + url + this.templateFileSuffix + this.templateFileQuerystring;
-  }
-
-};
+    };
 
 })();

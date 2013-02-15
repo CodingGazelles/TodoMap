@@ -1,6 +1,38 @@
-extends layout
+doctype 5
+html(ng-app='App', ng-controller='AppCtrl')
+  head
+    title= 'Todo Map'
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='stylesheet', href='/css/bootstrap.css')
+    link(rel='stylesheet', href='/css/bootstrap-responsive.css')
 
-block content
-    
-    div.row-fluid
-        td-map#td-map.span10.offset1(td-node='todoTree',style='height:500px;')
+    style
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+
+  body
+    ng-include(src="'/partials/navbar'")
+
+    ng-view
+
+    script(src='/lib/angular/angular.js')
+    script(src='/lib/angular/angular-resource.js')
+    script(src='/lib/tinycolor.js')
+    script(src='/lib/underscore.js')
+    script(src='/lib/app.router.js')
+
+    script(src='/js/services/utils.js')
+    script(src='/js/services/jmap.js')
+    script(src='/js/services/jtree.js')
+
+    script(src='/config/config.js')
+    script(src='/config/routes.js')
+    script(src='/js/filters/filters.js')
+    script(src='/js/services/services.js')
+    script(src='/js/directives/directives.js')
+    script(src='/js/controllers/controllers.js')
+    script(src='/js/app.js')
+
+
+
