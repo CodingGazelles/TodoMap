@@ -15,29 +15,37 @@ angular.module('App.Directives', [])
         scope: { node: '=tdNode'},
         template: '<div class="td-top-node"></div>',
         replace: true,
-        link: function linkMap(scope, iElement, iAttrs) {
-            console.log("Link directive tdMap");
+        link: function (scope, iElement, iAttrs) {
+            // console.log("Link directive tdMap");
 
-            var _updateMap = function () {
-                console.log("Update map");
+            var contentScope;
+
+            var _layoutMap = function () {
+                console.log("Layout map");
                 
-                if (scope.node !== undefined) {
-                    
+                if (scope.node) {
+
                     iElement.contents().remove();
+                    if(contentScope){
+                        contentScope.$destroy();
+                        contentScope = null;
+                    }
                     
                     // start squarifying
                     $mapManager.colorizeBranch(scope.node);
                     $mapManager.squarifyBranch(scope.node, iElement[0].getBoundingClientRect());
                     
-                    if (angular.isArray(scope.node.nodes)) {
+                    if(angular.isArray(scope.node.nodes)) {
                         iElement.append('<td-node ng-repeat="child in node.nodes" td-node="child"></td-node>');
                     }
-                    $compile(iElement.contents())(scope.$new());
+
+                    contentScope = scope.$new();
+                    $compile(iElement.contents())(contentScope);
                 }
             }
 
-            // todo: debounce of updateMap doesn't work, fix it
-            var updateMap = $debounce( _updateMap, 100, false);
+            // todo: debounce of layoutMap doesn't work, fix it
+            var layoutMap = $debounce( _layoutMap, 400, false);
 
             // watch map loading
             $appScope.topScope().$watch(
@@ -45,9 +53,9 @@ angular.module('App.Directives', [])
                     return scope.node === undefined;
                 },
                 function (newValue, oldValue) {
-                    console.log("Catch map loading watch");
                     if (newValue !== oldValue) {
-                        _updateMap();
+                        console.log("Watch map loaded");
+                        _layoutMap();
                     }
                 },
                 true
@@ -55,8 +63,18 @@ angular.module('App.Directives', [])
 
             angular.element($window).bind('resize', function(event) {
                 console.log("Catch window resize event");
-                //todo: use the debounce of updateMap
-                scope.$apply( _updateMap);
+                //todo: use the debounce of layoutMap
+                scope.$apply( function(){ layoutMap()});
+            });
+
+            scope.$on( 'redrawNode', function( event, args){
+                if( scope.node.path() === args.targetPath){
+                    console.log("Catch event redraw node: " + scope.node);
+                    // event.stopPropagation();
+                    // scope.$apply( _layoutMap());
+                    _layoutMap()
+
+                } 
             });
             
             // watch window size
@@ -71,7 +89,7 @@ angular.module('App.Directives', [])
             //     function watchWindowResize(newValue, oldValue) {
             //         console.log("callback function watchWindowResize");
             //         if (newValue !== oldValue) {
-            //             updateMap();
+            //             layoutMap();
             //         }
             //     },
             //     true
@@ -91,12 +109,19 @@ angular.module('App.Directives', [])
             // console.log("Link directive tdNode");
             //            console.log("node: " + scope.node.label);
 
+            var contentScope;
+
             function layoutNode() {
                 // console.log( "Layout node:" + scope.node);
                 // console.log( "call function layoutNode:" + Object.prototype.toString.call(scope.node) + "/" + scope.node.label);
                 //console.log( "node: " + JSON.stringify( scope.node));
 
                 iElement.contents().remove();
+                if(contentScope){
+                    contentScope.$destroy();
+                    contentScope = null;
+                }
+
                 iElement.css('background-color', $mapManager.toHexString( scope.node.bgcolor));
 
                 var top = scope.node.box.top, 
@@ -128,14 +153,16 @@ angular.module('App.Directives', [])
                     $mapManager.squarifyBranch(scope.node, childElement[0].getBoundingClientRect());
                 }
 
-                $compile(iElement.contents())(scope.$new());
+                contentScope = scope.$new();
+                $compile(iElement.contents())(contentScope);
             }
             
             scope.$on( 'redrawNode', function( event, args){
                 if( scope.node.path() === args.targetPath){
                     console.log("Catch event redraw node: " + scope.node);
                     // event.stopPropagation();
-                    scope.$apply( layoutNode());
+                    // scope.$apply( layoutNode());
+                    layoutNode()
                 } 
             });
             

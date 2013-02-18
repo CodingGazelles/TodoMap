@@ -5,7 +5,7 @@ TdNode.basic = {
     "weight": 0,
     "opened": true,
     "index": 0,
-    "childNodes": null
+    "nodes": null
 };
 // squeleton of a node, contains the extended (client side) properties of a node
 TdNode.extended = {

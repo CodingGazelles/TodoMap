@@ -1,4 +1,4 @@
-var data = require("./data/exp9");
+var data = require("./data/exp10");
 
 
 //function changeTree( nodeArray){
@@ -30,12 +30,14 @@ function changeTree( nodeArray){
         //console.log( node.label);
         
         // node.path = parentPath + "/" + i.toString();
-        node.index = parseInt( node.path.slice( node.path.length - 1));
-        delete node.path;
+        // node.index = parseInt( node.path.slice( node.path.length - 1));
+
+        node.nodes = node.childNodes;
+        delete node.childNodes;
         
         
-        if( node.childNodes !== undefined){
-            changeTree( node.childNodes);
+        if( node.nodes !== undefined){
+            changeTree( node.nodes);
         }
         
         

@@ -10,8 +10,8 @@ angular.module('App.Controllers', [])
 .controller('AppCtrl', [ '$rootScope', '$debounce', function( $rootScope, $debounce){
 }])
 
-.controller('TodomapCtrl', [ '$storage', function( $storage){
-    $storage.loadTree("510bf39e5ba1aa4c95000001");
+.controller('TodomapCtrl', [ '$treeManager', function( $treeManager){
+    $treeManager.loadTree("51200e6f22efc59ed1000001");
 }]);
 
 

@@ -2,7 +2,7 @@
 
 angular.module('App.Services', ['ngResource'])
 
-.factory('$storage', [ '$appScope', '$resource', '$injector', function($appScope, $resource, $injector) {
+.factory('$storage', [ '$resource', function($resource) {
     return {
         store:  $resource(
             '/api/maps/:id', 
@@ -13,122 +13,59 @@ angular.module('App.Services', ['ngResource'])
             }
         ),
 
-        loadTree: function( mapId){
+        loadTree: function( mapId, successFn, failureFn){
             console.log("Load tree");
+
+            successFn = successFn || function(){};
+            failureFn = failureFn || function(){};
+
             this.store.getMap(
                 {id: mapId},
-                this._onLoadSucceed,
-                this._onLoadFailed
+                function( data){
+                    console.log("Load map succeeded");
+                    // console.log("$scope.todoTree: " + JSON.stringify(data));
+                    successFn(data);
+                },
+                function( data){
+                    console.log("Load map failed");
+                    console.log("Returned data: " + data);
+                    failureFn(data);
+                   // console.log("$scope.mapData: " + JSON.stringify(data));
+                }
             );
         },
 
-        _onLoadSucceed: function( data){
-            console.log("Load map succeed");
-            // console.log("$scope.todoTree: " + JSON.stringify(data));
-            var tree = $injector.get('$storage')._extendTree( data);
-            $appScope.topScope().todoTree = tree;
-        },
-
-        _onLoadFailed: function( data){
-            console.log("Load map failed");
-            console.log("Returned data: " + data);
-            $appScope.topScope().todoTree = {
-                label: "error",
-                childNodes: []
-            };
-           // console.log("$scope.mapData: " + JSON.stringify(data));
-        },
-
-        _extendTree: function(data) {
-            console.log("Extend tree");
-
-            var root;
-            var getNodeData = function(node) {
-                    var attr, nodeData = {};
-                    for(attr in node) {
-                        if(attr !== "childNodes") nodeData[attr] = node[attr];
-                    }
-                    return nodeData;
-                };
-
-            (function walkDown(node, parent) {
-                var newNode;
-
-                if(!parent) {
-                    newNode = root = new TdNode(getNodeData(node));
-                } else {
-                    newNode = new TdNode(getNodeData(node));
-                    newNode.parent = parent;
-                    parent._pushChild(newNode);
-                }
-
-                if("childNodes" in node) {
-                    for(var i = 0; i < node.childNodes.length; i++) {
-                        walkDown(node.childNodes[i], newNode);
-                    }
-                }
-            })(data);
-
-            return root;
-        },
-
-        saveTree: function(){
+        saveTree: function(tree, successFn, failFn){
             console.log("Save tree");
-            // $debounce( this._saveTree(), 2000, false);
-        },
 
-        _saveTree: function(){
-            console.log("Save tree (debounced)");
+            successFn = successFn || function(){};
+            failFn = failFn || function(){};
             
-            var todoData = TdTree.filterTree( $rootScope.todoTree);
+            
             // console.log("$scope.mapData: " + JSON.stringify( todoData));
             
-            $storage.saveMap(
-                {id: todoData._id},
-                todoData,
+            this.store.saveMap(
+                {id: tree._id},
+                tree,
                 function(data) { // SUCCESS
                     console.log("call api maps.saveMap succeed");
                     //console.log("$scope.mapData: " + JSON.stringify(data));
+                    successFn();
                 },
                 function(data) { // FAILURE
                     console.log("call api maps.saveMap failed");
                     //console.log("$scope.mapData: " + JSON.stringify(data));
+                    failFn();
                 }
             );
         },
 
-        // flatten the tree, ie, remove non persistent properties from the node tree
-        _flattenTree: function(data) {
-            console.log("flatten tree");
-
-            var root;
-
-            (function walkDown(node, parent) {
-                var newNode;
-
-                if(!parent) {
-                    newNode = root = _.pick(node, _.keys(TdNode.basic), "_id");
-                    newNode.childNodes = [];
-                } else {
-                    newNode = _.pick(node, _.keys(TdNode.basic));
-                    newNode.childNodes = [];
-                    parent.childNodes.push(newNode);
-                }
-
-                if("childNodes" in node) {
-                    for(var i = 0; i < node.nodes().length; i++) {
-                        walkDown(node.nodes()[i], newNode);
-                    }
-                }
-            })(data);
-
-            return root;
-        }
+        
     };
 }])
 
 // updates the model
-.factory('$treeManager', ['$storage', '$rootScope', function($storage, $rootScope) {
+.factory('$treeManager', ['$storage', '$appScope', '$injector', function($storage, $appScope, $injector) {
     return {
         deleteNode: function(node){
             if( !node) throw new Error("Node can't be null or undefined");
@@ -150,28 +87,133 @@ angular.module('App.Services', ['ngResource'])
             return node.createSibling();
         },
 
-        onChangedTree: function(){
-            console.log("Changed tree");
-            $storage.saveTree();
+        loadTree: function(id){
+            console.log("Load tree");
+            $storage.loadTree(id, this._onLoadedTree, this._onLoadingFailed);
         },
 
-        onSavingTree: function(){
+        _onLoadedTree: function(data){
+            console.log("Loaded tree");
+            var tree = $injector.get('$treeManager')._extendTree( data);
+            $appScope.topScope().todoTree = tree;
+        },
+
+        _onLoadingFailed: function(data){
+            console.log("Loading tree failed");
+        },
+
+        saveTree: function(){
+            console.log("Save tree");
+            this._onSavingTree();
+            var data = this._flattenTree( $appScope.topScope().todoTree);
+            $storage.saveTree( data, this._onSavedTree, this._onSavingFailed);
+        },
+
+        _onSavingTree: function(){
             console.log("Saving tree");
-            $rootScope.savedState = "Saving ...";
-            $rootScope.$digest();
+            $appScope.topScope().savedState = "Saving ...";
         },
 
-        onSavedTree: function(){
+        _onSavedTree: function(){
             console.log("Saved tree");
-            $rootScope.savedState = "Saved";
-            $rootScope.$digest();
+            $appScope.topScope().savedState = "Saved";
+        },
+
+        _onSavingFailed: function(data){
+            console.log("Saving tree failed");
+        },
+
+        _extendTree: function(data) {
+            console.log("Extend tree");
+
+            var root;
+            var getNodeData = function(node) {
+                var attr, nodeData = {};
+                for(attr in node) {
+                    if(attr !== "nodes") nodeData[attr] = node[attr];
+                }
+                return nodeData;
+            };
+
+            (function walkDown(node, parent) {
+                var newNode;
+
+                if(!parent) {
+                    newNode = root = new TdNode(getNodeData(node));
+                } else {
+                    newNode = new TdNode(getNodeData(node));
+                    newNode.parent = parent;
+                    parent._pushChild(newNode);
+                }
+
+                // if("childNodes" in node) {
+                //     for(var i = 0; i < node.childNodes.length; i++) {
+                //         walkDown(node.childNodes[i], newNode);
+                //     }
+                // } else 
+                if("nodes" in node) {
+                    for(var i = 0; i < node.nodes.length; i++) {
+                        walkDown(node.nodes[i], newNode);
+                    }
+                } 
+            })(data);
+
+            return root;
+        },
+
+        // flatten the tree, ie, remove non persistent properties from the node tree
+        _flattenTree: function(data) {
+            console.log("flatten tree");
+
+            var root;
+
+            (function walkDown(node, parent) {
+                var newNode;
+
+                if(!parent) {
+                    newNode = root = _.pick(node, _.keys(TdNode.basic), "_id");
+                    newNode.nodes = [];
+                } else {
+                    newNode = _.pick(node, _.keys(TdNode.basic));
+                    newNode.nodes = [];
+                    parent.nodes.push(newNode);
+                }
+
+                if("nodes" in node) {
+                    for(var i = 0; i < node.nodes.length; i++) {
+                        walkDown(node.nodes[i], newNode);
+                    }
+                }
+            })(data);
+
+            return root;
         }
     };
 }])
 
-.factory('$mapManager', ['$appScope', function($appScope) {
+.factory('$mapManager', ['$treeManager', '$appScope', function($treeManager, $appScope) {
     return {
-        // todo: ajouter map builder
+        deleteNode: function(node){
+            $treeManager.deleteNode( node);
+            $treeManager.saveTree();
+
+            this._redrawNode(node.parent);
+            if(node.previous()) {
+                this._focusOnNode(node.previous());
+            } else if(node.parent) {
+                this._focusOnNode(node.parent);
+            } else if(node.next()) {
+                this._focusOnNode(node.next());
+            }
+        },
+
+        createSibling: function(node){
+            var newNode = $treeManager.createSibling(node);
+            $treeManager.saveTree();
+
+            this._redrawNode(node.parent);
+            this._focusOnNode(newNode);
+        },
 
         colorizeBranch: function(node){
             if( !node) throw new Error("Node can't be null");
@@ -211,14 +253,14 @@ angular.module('App.Services', ['ngResource'])
             return tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
         },
 
-        redrawNode: function(node) {
+        _redrawNode: function(node) {
             console.log("Throw event redraw node: " + node);
             $appScope.topScope().$broadcast('redrawNode', {
                 "targetPath": node.path()
             });
         },
 
-        focusOnNode: function(node) {
+        _focusOnNode: function(node) {
             console.log("Throw event focus on node: " + node);
             $appScope.topScope().$broadcast('focusOnLabel', {
                 "targetPath": node.path()
@@ -229,11 +271,16 @@ angular.module('App.Services', ['ngResource'])
 }])
 
 // filters the user event
-.factory('$eventManager', [ '$treeManager', '$mapManager',  function($treeManager, $mapManager) {
+.factory('$eventManager', ['$mapManager', '$appScope',  function($mapManager, $appScope) {
     return {
         onChange: function(event, node) {
             console.log("Catch event label change");
-            $treeManager.onChangedTree();
+            
+            if(event.preventDefaut) event.preventDefault();
+            if(event.returnValue) event.returnValue = false;
+            
+            // todo: remove call to safeApply
+            $appScope.safeApply( function(){ $mapManager.onChangedNode()});
         },
 
         onKeydown: function(event, node) {
@@ -246,17 +293,8 @@ angular.module('App.Services', ['ngResource'])
 
                 console.log("Catch delete node event: " + node);
 
-                $treeManager.deleteNode( node);
-                $treeManager.onChangedTree();
-                $mapManager.redrawNode(node.parent);
-
-                if(node.previous) {
-                    $mapManager.focusOnNode(node.previous());
-                } else if(node.parent) {
-                    $mapManager.focusOnNode(node.parent());
-                } else if(node.next) {
-                    $mapManager.focusOnNode(node.next());
-                }
+                // todo: remove call to safeApply
+                $appScope.safeApply( function(){ $mapManager.deleteNode(node)});
             };
         },
 
@@ -267,17 +305,10 @@ angular.module('App.Services', ['ngResource'])
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
                 
-                $treeManager.createSibling( scope.node);
-                $treeManager.onChangedTree(node);
+                console.log("Catch create sibling event: " + node);
 
-                console.log("Throw event redraw node: " + scope.node.parent);
-                scope.$emit('redrawNode', {
-                    "targetPath": scope.node.parent.path()
-                });
-
-                newNode.labelElement[0].focus();
-
-                
+                // todo: remove call to safeApply
+                $appScope.safeApply( function(){ $mapManager.createSibling(node)});
             };
         },
 
