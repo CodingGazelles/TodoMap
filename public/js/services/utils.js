@@ -51,7 +51,7 @@ angular.module( 'App.Utils', [])
     return function(func, wait, immediate) {
         var timeout;
         var deferred = $q.defer();
-        console.log("Building debounced version of " + arguments[0] + ", " + arguments[1] + ", " + arguments[2]);
+        // console.log("Building debounced version of " + arguments[0] + ", " + arguments[1] + ", " + arguments[2]);
         return function() {
             var context = this,
                 args = arguments;

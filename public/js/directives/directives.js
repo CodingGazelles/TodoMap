@@ -8,7 +8,7 @@ TdKeyboard.ENTER = 13;
 /* Directives */
 angular.module('App.Directives', [])
 
-.directive('tdMap', function mapFactory($compile, $appScope, $window, $debounce, $mapManager) {
+.directive('tdMap', function($compile, $appScope, $window, $debounce, $mapManager) {
     return {
         restrict: 'E',
         terminal: true,
@@ -21,7 +21,7 @@ angular.module('App.Directives', [])
             var contentScope;
 
             var _layoutMap = function () {
-                console.log("Layout map");
+                console.log("tdMap: Layout map");
                 
                 if (scope.node) {
 
@@ -44,61 +44,46 @@ angular.module('App.Directives', [])
                 }
             }
 
-            // todo: debounce of layoutMap doesn't work, fix it
             var layoutMap = $debounce( _layoutMap, 400, false);
 
-            // watch map loading
+            // redraw map when loaded
             $appScope.topScope().$watch(
                 function() {
                     return scope.node === undefined;
                 },
                 function (newValue, oldValue) {
                     if (newValue !== oldValue) {
-                        console.log("Watch map loaded");
+                        console.log("tdMap: Watch map loaded");
                         _layoutMap();
                     }
                 },
                 true
             );
 
+            // redraw node when # of child nodes changes
+            scope.$watch(
+                function(){
+                    return scope.node ? scope.node.nodes.length : -1;
+                },
+                function(newValue, oldValue){
+                    if (newValue !== oldValue) {
+                        console.log("tdMap: Watch # of nodes changed: " + scope.node);
+                        _layoutMap();
+                    }
+                },
+                true
+            );
+
+            // redraw map when window's size changes
             angular.element($window).bind('resize', function(event) {
-                console.log("Catch window resize event");
-                //todo: use the debounce of layoutMap
+                console.log("tdMap: Catch window resize event");
                 scope.$apply( function(){ layoutMap()});
             });
-
-            scope.$on( 'redrawNode', function( event, args){
-                if( scope.node.path() === args.targetPath){
-                    console.log("Catch event redraw node: " + scope.node);
-                    // event.stopPropagation();
-                    // scope.$apply( _layoutMap());
-                    _layoutMap()
-
-                } 
-            });
-            
-            // watch window size
-            // scope.$watch(
-            //     function() {
-            //         var element = document.getElementById("td-map");
-            //         return {
-            //             width: element.offsetWidth,
-            //             height: element.offsetHeight
-            //         };
-            //     },
-            //     function watchWindowResize(newValue, oldValue) {
-            //         console.log("callback function watchWindowResize");
-            //         if (newValue !== oldValue) {
-            //             layoutMap();
-            //         }
-            //     },
-            //     true
-            // );
         }
     };
 })
 
-.directive('tdNode', function nodeFactory($compile, $mapManager) {
+.directive('tdNode', function($compile, $mapManager) {
     return {
         restrict: 'E',
         terminal: true,
@@ -106,8 +91,8 @@ angular.module('App.Directives', [])
         template: '<div class="td-node"></div>',
         replace: true,
         link: function(scope, iElement, attrs) {
-            // console.log("Link directive tdNode");
-            //            console.log("node: " + scope.node.label);
+            // console.log("tdNode: Link directive tdNode");
+            //            console.log("tdNode: node: " + scope.node.label);
 
             var contentScope;
 
@@ -156,22 +141,27 @@ angular.module('App.Directives', [])
                 contentScope = scope.$new();
                 $compile(iElement.contents())(contentScope);
             }
-            
-            scope.$on( 'redrawNode', function( event, args){
-                if( scope.node.path() === args.targetPath){
-                    console.log("Catch event redraw node: " + scope.node);
-                    // event.stopPropagation();
-                    // scope.$apply( layoutNode());
-                    layoutNode()
-                } 
-            });
+
+            // redraw node when # of child nodes changes
+            scope.$watch(
+                function(){
+                    return scope.node.nodes.length;
+                },
+                function(newValue, oldValue){
+                    if (newValue !== oldValue) {
+                        console.log("tdNode: Watch # of nodes changed: " + scope.node);
+                        layoutNode();
+                    }
+                },
+                true
+            );
             
             layoutNode();
         }
     };
 })
 
-.directive('tdLabel', function labelFactory($compile,$eventManager) {
+.directive('tdLabel', function($compile,$eventManager) {
     return {
         restrict: 'E',
         terminal: true,
@@ -182,12 +172,6 @@ angular.module('App.Directives', [])
             //console.log("call function updateLabel");
             //console.log( "node: " + JSON.stringify( scope.node));
             
-//            var button = angular.element( '<i></i>');
-            //button.addClass( "icon-white");
-//            button.addClass( scope.node.opened ? "icon-minus-sign" : "icon-plus-sign");
-//            iElement.append( button);
-//            button.bind('click', toggle);
-            
 			var label = angular.element( '<input class="td-label-editor" type="text" ng-model="node.label" placeholder="{{node.label}}">');
             scope.node.labelElement = label;
 
@@ -195,24 +179,16 @@ angular.module('App.Directives', [])
             label.bind( 'keydown',   function(){    $eventManager.onKeydown(   event, scope.node)});
 			label.bind( 'keypress',  function(){    $eventManager.onKeypress(  event, scope.node)});
             label.bind( 'input',     function(){    $eventManager.onInput(     event, scope.node)});
+            label.bind( 'focus',     function(){    $eventManager.onFocus(     event, scope.node)});
 			iElement.append( label);
 
             scope.$on( 'focusOnLabel', function( event, args){
                 if( scope.node.path() === args.targetPath){
-                    console.log("Catch event focus on node: " + scope.node);
+                    console.log("tdLabel: Catch event focus on node: " + scope.node);
                     // event.stopPropagation();
                     label[0].focus();
                 } 
             });
-            
-            // Toggle the closed/opened state
-            // function toggle() {
-            //     scope.node.opened = !scope.node.opened;
-            //     button.addClass( scope.node.opened ? "icon-minus-sign" : "icon-plus-sign");
-            //     button.removeClass( scope.node.opened ? "icon-plus-sign" : "icon-minus-sign");
-            //     // scope.$emit('toggleNode', { "targetPath": scope.node.parent.path});
-            //     scope.$emit('saveMap');
-            // }
             
             $compile(iElement.contents())(scope.$new());
         }

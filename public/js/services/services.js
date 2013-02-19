@@ -14,7 +14,7 @@ angular.module('App.Services', ['ngResource'])
         ),
 
         loadTree: function( mapId, successFn, failureFn){
-            console.log("Load tree");
+            console.log("$storage: Load tree");
 
             successFn = successFn || function(){};
             failureFn = failureFn || function(){};
@@ -22,39 +22,39 @@ angular.module('App.Services', ['ngResource'])
             this.store.getMap(
                 {id: mapId},
                 function( data){
-                    console.log("Load map succeeded");
-                    // console.log("$scope.todoTree: " + JSON.stringify(data));
+                    console.log("$storage: Load map succeeded");
+                    // console.log("$storage: $scope.todoTree: " + JSON.stringify(data));
                     successFn(data);
                 },
                 function( data){
-                    console.log("Load map failed");
-                    console.log("Returned data: " + data);
+                    console.log("$storage: Load map failed");
+                    console.log("$storage: Returned data: " + data);
                     failureFn(data);
-                   // console.log("$scope.mapData: " + JSON.stringify(data));
+                   // console.log("$storage: $scope.mapData: " + JSON.stringify(data));
                 }
             );
         },
 
         saveTree: function(tree, successFn, failFn){
-            console.log("Save tree");
+            console.log("$storage: Save tree");
 
             successFn = successFn || function(){};
             failFn = failFn || function(){};
             
             
-            // console.log("$scope.mapData: " + JSON.stringify( todoData));
+            // console.log("$storage: $scope.mapData: " + JSON.stringify( todoData));
             
             this.store.saveMap(
                 {id: tree._id},
                 tree,
                 function(data) { // SUCCESS
-                    console.log("call api maps.saveMap succeed");
-                    //console.log("$scope.mapData: " + JSON.stringify(data));
+                    console.log("$storage: call api maps.saveMap succeed");
+                    //console.log("$storage: $scope.mapData: " + JSON.stringify(data));
                     successFn();
                 },
                 function(data) { // FAILURE
-                    console.log("call api maps.saveMap failed");
-                    //console.log("$scope.mapData: " + JSON.stringify(data));
+                    console.log("$storage: call api maps.saveMap failed");
+                    //console.log("$storage: $scope.mapData: " + JSON.stringify(data));
                     failFn();
                 }
             );
@@ -73,7 +73,7 @@ angular.module('App.Services', ['ngResource'])
                 console.log('WARN: tried to delete root');
                 throw new Error("Can't delete root");
             }
-            console.log("Delete node: " + node);
+            console.log("$treeManager: Delete node: " + node);
             node.delete();
         },
 
@@ -83,48 +83,48 @@ angular.module('App.Services', ['ngResource'])
                 console.log('WARN: tried to create a sibling of root');
                 throw new Error("Can't create a sibling to root");
             }
-            console.log("Create sibling to node: " + node);
+            console.log("$treeManager: Create sibling to node: " + node);
             return node.createSibling();
         },
 
         loadTree: function(id){
-            console.log("Load tree");
+            console.log("$treeManager: Load tree");
             $storage.loadTree(id, this._onLoadedTree, this._onLoadingFailed);
         },
 
         _onLoadedTree: function(data){
-            console.log("Loaded tree");
+            console.log("$treeManager: Loaded tree");
             var tree = $injector.get('$treeManager')._extendTree( data);
             $appScope.topScope().todoTree = tree;
         },
 
         _onLoadingFailed: function(data){
-            console.log("Loading tree failed");
+            console.log("$treeManager: Loading tree failed");
         },
 
         saveTree: function(){
-            console.log("Save tree");
+            console.log("$treeManager: Save tree");
             this._onSavingTree();
             var data = this._flattenTree( $appScope.topScope().todoTree);
             $storage.saveTree( data, this._onSavedTree, this._onSavingFailed);
         },
 
         _onSavingTree: function(){
-            console.log("Saving tree");
+            console.log("$treeManager: Saving tree");
             $appScope.topScope().savedState = "Saving ...";
         },
 
         _onSavedTree: function(){
-            console.log("Saved tree");
+            console.log("$treeManager: Saved tree");
             $appScope.topScope().savedState = "Saved";
         },
 
         _onSavingFailed: function(data){
-            console.log("Saving tree failed");
+            console.log("$treeManager: Saving tree failed");
         },
 
         _extendTree: function(data) {
-            console.log("Extend tree");
+            console.log("$treeManager: Extend tree");
 
             var root;
             var getNodeData = function(node) {
@@ -163,7 +163,7 @@ angular.module('App.Services', ['ngResource'])
 
         // flatten the tree, ie, remove non persistent properties from the node tree
         _flattenTree: function(data) {
-            console.log("flatten tree");
+            console.log("$treeManager: flatten tree");
 
             var root;
 
@@ -196,23 +196,12 @@ angular.module('App.Services', ['ngResource'])
         deleteNode: function(node){
             $treeManager.deleteNode( node);
             $treeManager.saveTree();
-
-            this._redrawNode(node.parent);
-            if(node.previous()) {
-                this._focusOnNode(node.previous());
-            } else if(node.parent) {
-                this._focusOnNode(node.parent);
-            } else if(node.next()) {
-                this._focusOnNode(node.next());
-            }
         },
 
         createSibling: function(node){
             var newNode = $treeManager.createSibling(node);
             $treeManager.saveTree();
-
-            this._redrawNode(node.parent);
-            this._focusOnNode(newNode);
+            return newNode;
         },
 
         colorizeBranch: function(node){
@@ -253,15 +242,8 @@ angular.module('App.Services', ['ngResource'])
             return tinycolor("hsv (" + color.h + " " + color.s + " " + color.v + ")").toHexString();
         },
 
-        _redrawNode: function(node) {
-            console.log("Throw event redraw node: " + node);
-            $appScope.topScope().$broadcast('redrawNode', {
-                "targetPath": node.path()
-            });
-        },
-
-        _focusOnNode: function(node) {
-            console.log("Throw event focus on node: " + node);
+        focusOnNode: function(node) {
+            console.log("$mapManager: Throw event focus on node: " + node);
             $appScope.topScope().$broadcast('focusOnLabel', {
                 "targetPath": node.path()
             });
@@ -274,7 +256,7 @@ angular.module('App.Services', ['ngResource'])
 .factory('$eventManager', ['$mapManager', '$appScope',  function($mapManager, $appScope) {
     return {
         onChange: function(event, node) {
-            console.log("Catch event label change");
+            console.log("$eventManager: Catch event label change");
             
             if(event.preventDefaut) event.preventDefault();
             if(event.returnValue) event.returnValue = false;
@@ -284,36 +266,50 @@ angular.module('App.Services', ['ngResource'])
         },
 
         onKeydown: function(event, node) {
-            console.log("Catch event label keydown");
+            console.log("$eventManager: Catch event label keydown: " + node);
             if((event.keyCode === TdKeyboard.BACK_SPACE || event.keyCode === TdKeyboard.DELETE) 
                 && event.target.value === ""
             ){
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
 
-                console.log("Catch delete node event: " + node);
+                console.log("$eventManager: Catch delete node event: " + node);
 
                 // todo: remove call to safeApply
                 $appScope.safeApply( function(){ $mapManager.deleteNode(node)});
+                if(node.previous()) {
+                    $mapManager.focusOnNode(node.previous());
+                } else if(node.parent) {
+                    $mapManager.focusOnNode(node.parent);
+                } else if(node.next()) {
+                    $mapManager.focusOnNode(node.next());
+                }
             };
         },
 
         onKeypress: function(event, node) {
-            console.log("Catch event label keypress");
+            console.log("$eventManager: Catch event label keypress: " + node);
 
             if(event.keyCode === TdKeyboard.ENTER) {
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
                 
-                console.log("Catch create sibling event: " + node);
+                console.log("$eventManager: Catch create sibling event: " + node);
 
                 // todo: remove call to safeApply
-                $appScope.safeApply( function(){ $mapManager.createSibling(node)});
+                var newNode;
+                $appScope.safeApply( function(){ newNode = $mapManager.createSibling(node)});
+
+                $mapManager.focusOnNode(newNode);
             };
         },
 
         onInput: function(event, node) {
-            console.log("Catch event label input");
+            console.log("$eventManager: Catch event label input: " + node);
+        },
+
+        onFocus: function(event, node){
+            console.log("$eventManager: Catch event label focus: " + node);           
         }
     };
 }])
