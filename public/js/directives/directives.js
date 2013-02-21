@@ -1,9 +1,6 @@
 'use strict';
 
-var TdKeyboard = function(){};
-TdKeyboard.BACK_SPACE = 8;
-TdKeyboard.DELETE = 46;
-TdKeyboard.ENTER = 13;
+
 
 /* Directives */
 angular.module('App.Directives', [])
@@ -172,7 +169,7 @@ angular.module('App.Directives', [])
             //console.log("call function updateLabel");
             //console.log( "node: " + JSON.stringify( scope.node));
             
-			var label = angular.element( '<input class="td-label-editor" type="text" ng-model="node.label" placeholder="{{node.label}}">');
+			var label = angular.element( '<input class="td-label-editor" type="text" ng-model="node.label" placeholder="{{node.label}}" style="width: 90%">');
             scope.node.labelElement = label;
 
 			label.bind( 'change',    function(){    $eventManager.onChange(    event, scope.node)});

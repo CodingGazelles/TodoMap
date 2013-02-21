@@ -1,5 +1,13 @@
 'use strict';
 
+var TdKeyboard = {
+    BACK_SPACE: 8,
+    DELETE: 46,
+    ENTER: 13,
+    ARROW_DOWN: 40,
+    ARROW_UP: 38
+}
+
 angular.module('App.Services', ['ngResource'])
 
 .factory('$storage', [ '$resource', function($resource) {
@@ -65,8 +73,48 @@ angular.module('App.Services', ['ngResource'])
 }])
 
 // updates the model
-.factory('$treeManager', ['$storage', '$appScope', '$injector', function($storage, $appScope, $injector) {
+.factory('$treeManager', ['$storage', '$appScope', '$injector', '$debounce', function($storage, $appScope, $injector, $debounce) {
     return {
+        walkNext: function(node) {
+            var nextNode;
+
+            if(node.head()) {
+                nextNode = node.head();     // first child node
+            } else if(node.next()) {
+                nextNode = node.next();     // next node
+            } else {
+                var tmp = node;
+                do {
+                    tmp = tmp.parent;
+                } while (!tmp.next() && !tmp.isRoot())  // find first parent having a next node or root node
+                if(tmp.isRoot()) {
+                    nextNode = tmp.head();
+                } else {
+                    nextNode = tmp.next();
+                }
+            }
+            return nextNode;
+        },
+
+        walkPrevious: function(node) {
+            var nextNode;
+
+            if(node.previous()) {
+                nextNode = node.previous();
+                while(nextNode.tail()){
+                    nextNode = nextNode.tail()
+                }
+            }else {
+                nextNode = node.parent;
+                if(nextNode.isRoot()){
+                    while(nextNode.tail()){
+                        nextNode = nextNode.tail()
+                    }
+                }
+            }
+            return nextNode;
+        },
+
         deleteNode: function(node){
             if( !node) throw new Error("Node can't be null or undefined");
             if( node.isRoot()){
@@ -103,6 +151,17 @@ angular.module('App.Services', ['ngResource'])
         },
 
         saveTree: function(){
+            if(this.db_saveTree){
+                this.db_saveTree();
+            } else {
+                this.db_saveTree = $debounce( this._saveTree, 5000, false);
+                this.db_saveTree();
+            }
+        },
+
+        db_saveTree: null,
+
+        _saveTree: function(){
             console.log("$treeManager: Save tree");
             this._onSavingTree();
             var data = this._flattenTree( $appScope.topScope().todoTree);
@@ -193,6 +252,10 @@ angular.module('App.Services', ['ngResource'])
 
 .factory('$mapManager', ['$treeManager', '$appScope', function($treeManager, $appScope) {
     return {
+        onChangedNode: function(node){
+            $treeManager.saveTree();
+        },
+
         deleteNode: function(node){
             $treeManager.deleteNode( node);
             $treeManager.saveTree();
@@ -253,16 +316,10 @@ angular.module('App.Services', ['ngResource'])
 }])
 
 // filters the user event
-.factory('$eventManager', ['$mapManager', '$appScope',  function($mapManager, $appScope) {
+.factory('$eventManager', ['$mapManager', '$treeManager', '$appScope',  function($mapManager, $treeManager, $appScope) {
     return {
         onChange: function(event, node) {
             console.log("$eventManager: Catch event label change");
-            
-            if(event.preventDefaut) event.preventDefault();
-            if(event.returnValue) event.returnValue = false;
-            
-            // todo: remove call to safeApply
-            $appScope.safeApply( function(){ $mapManager.onChangedNode()});
         },
 
         onKeydown: function(event, node) {
@@ -279,11 +336,24 @@ angular.module('App.Services', ['ngResource'])
                 $appScope.safeApply( function(){ $mapManager.deleteNode(node)});
                 if(node.previous()) {
                     $mapManager.focusOnNode(node.previous());
-                } else if(node.parent) {
+                } else if(node.parent & !node.parent.isRoot()) {
                     $mapManager.focusOnNode(node.parent);
                 } else if(node.next()) {
                     $mapManager.focusOnNode(node.next());
                 }
+            }else if(event.keyCode === TdKeyboard.ARROW_DOWN){
+                if(event.preventDefaut) event.preventDefault();
+                if(event.returnValue) event.returnValue = false;
+
+                console.log("$eventManager: Catch move to next node event: " + node);
+                $mapManager.focusOnNode($treeManager.walkNext(node));
+                
+            }else if(event.keyCode === TdKeyboard.ARROW_UP){
+                if(event.preventDefaut) event.preventDefault();
+                if(event.returnValue) event.returnValue = false;
+
+                console.log("$eventManager: Catch move to previous node event: " + node);
+                $mapManager.focusOnNode($treeManager.walkPrevious(node));
             };
         },
 
@@ -306,10 +376,16 @@ angular.module('App.Services', ['ngResource'])
 
         onInput: function(event, node) {
             console.log("$eventManager: Catch event label input: " + node);
+
+            if(event.preventDefaut) event.preventDefault();
+            if(event.returnValue) event.returnValue = false;
+            
+            // todo: remove call to safeApply
+            $appScope.safeApply( function(){ $mapManager.onChangedNode(node)}); 
         },
 
         onFocus: function(event, node){
-            console.log("$eventManager: Catch event label focus: " + node);           
+            console.log("$eventManager: Catch event label focus: " + node);   
         }
     };
 }])
