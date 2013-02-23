@@ -252,6 +252,14 @@ angular.module('App.Services', ['ngResource'])
 
 .factory('$mapManager', ['$treeManager', '$appScope', function($treeManager, $appScope) {
     return {
+        selectNode: function(node){
+            if($appScope.topScope().selectedNode) 
+                $appScope.topScope().selectedNode.selected = false;
+
+            node.selected = true;
+            $appScope.topScope().selectedNode = node;
+        },
+
         onChangedNode: function(node){
             $treeManager.saveTree();
         },
@@ -307,10 +315,7 @@ angular.module('App.Services', ['ngResource'])
 
         focusOnNode: function(node) {
             console.log("$mapManager: Throw event focus on node: " + node);
-            $appScope.topScope().$broadcast('focusOnLabel', {
-                "targetPath": node.path()
-            });
-            
+            node.element.find('input')[0].focus();
         }
     };
 }])
@@ -318,74 +323,94 @@ angular.module('App.Services', ['ngResource'])
 // filters the user event
 .factory('$eventManager', ['$mapManager', '$treeManager', '$appScope',  function($mapManager, $treeManager, $appScope) {
     return {
-        onChange: function(event, node) {
+        onClick: function(event, scope, element){
+            console.log("$eventManager: Catch event click node: " + scope.node);
+
+            // stop event propagation
+            if(event.preventDefaut) event.preventDefault();
+            if(event.returnValue) event.returnValue = false;
+            event.stopPropagation();
+
+            $appScope.safeApply( function(){ $mapManager.selectNode(scope.node)});
+            $mapManager.focusOnNode(scope.node);
+        },
+
+        onChange: function(event, scope, element) {
             console.log("$eventManager: Catch event label change");
         },
 
-        onKeydown: function(event, node) {
-            console.log("$eventManager: Catch event label keydown: " + node);
+        onKeydown: function(event, scope, element) {
+            console.log("$eventManager: Catch event label keydown: " + scope.node);
             if((event.keyCode === TdKeyboard.BACK_SPACE || event.keyCode === TdKeyboard.DELETE) 
                 && event.target.value === ""
             ){
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
 
-                console.log("$eventManager: Catch delete node event: " + node);
+                console.log("$eventManager: Catch delete node event: " + scope.node);
 
                 // todo: remove call to safeApply
-                $appScope.safeApply( function(){ $mapManager.deleteNode(node)});
-                if(node.previous()) {
-                    $mapManager.focusOnNode(node.previous());
-                } else if(node.parent & !node.parent.isRoot()) {
-                    $mapManager.focusOnNode(node.parent);
-                } else if(node.next()) {
-                    $mapManager.focusOnNode(node.next());
+                $appScope.safeApply( function(){ $mapManager.deleteNode(scope.node)});
+                if(scope.node.previous()) {
+                    $mapManager.focusOnNode(scope.node.previous());
+                } else if(scope.node.parent & !scope.node.parent.isRoot()) {
+                    $mapManager.focusOnNode(scope.node.parent);
+                } else if(scope.node.next()) {
+                    $mapManager.focusOnNode(scope.node.next());
                 }
             }else if(event.keyCode === TdKeyboard.ARROW_DOWN){
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
 
-                console.log("$eventManager: Catch move to next node event: " + node);
-                $mapManager.focusOnNode($treeManager.walkNext(node));
+                console.log("$eventManager: Catch move to next node event: " + scope.node);
+
+                var nextNode = $treeManager.walkNext(scope.node);
+                $appScope.safeApply( function(){ $mapManager.selectNode(nextNode)});
+                $mapManager.focusOnNode(nextNode);
                 
             }else if(event.keyCode === TdKeyboard.ARROW_UP){
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
 
-                console.log("$eventManager: Catch move to previous node event: " + node);
-                $mapManager.focusOnNode($treeManager.walkPrevious(node));
+                console.log("$eventManager: Catch move to previous node event: " + scope.node);
+
+                var previousNode = $treeManager.walkPrevious(scope.node);
+                $appScope.safeApply( function(){ 
+                    $mapManager.selectNode(previousNode)
+                });
+                $mapManager.focusOnNode(previousNode);
             };
         },
 
-        onKeypress: function(event, node) {
-            console.log("$eventManager: Catch event label keypress: " + node);
+        onKeypress: function(event, scope, element) {
+            console.log("$eventManager: Catch event label keypress: " + scope.node);
 
             if(event.keyCode === TdKeyboard.ENTER) {
                 if(event.preventDefaut) event.preventDefault();
                 if(event.returnValue) event.returnValue = false;
                 
-                console.log("$eventManager: Catch create sibling event: " + node);
+                console.log("$eventManager: Catch create sibling event: " + scope.node);
 
-                // todo: remove call to safeApply
                 var newNode;
-                $appScope.safeApply( function(){ newNode = $mapManager.createSibling(node)});
-
+                $appScope.safeApply( function(){ 
+                    newNode = $mapManager.createSibling(scope.node);
+                    $mapManager.selectNode(newNode);
+                });
                 $mapManager.focusOnNode(newNode);
             };
         },
 
-        onInput: function(event, node) {
-            console.log("$eventManager: Catch event label input: " + node);
+        onInput: function(event, scope, element) {
+            console.log("$eventManager: Catch event label input: " + scope.node);
 
             if(event.preventDefaut) event.preventDefault();
             if(event.returnValue) event.returnValue = false;
             
-            // todo: remove call to safeApply
-            $appScope.safeApply( function(){ $mapManager.onChangedNode(node)}); 
+            $appScope.safeApply( function(){ $mapManager.onChangedNode(scope.node)}); 
         },
 
-        onFocus: function(event, node){
-            console.log("$eventManager: Catch event label focus: " + node);   
+        onFocus: function(event, scope, element){
+            console.log("$eventManager: Catch event label focus: " + scope.node);   
         }
     };
 }])

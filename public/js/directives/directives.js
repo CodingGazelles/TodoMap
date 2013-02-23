@@ -75,60 +75,70 @@ angular.module('App.Directives', [])
             angular.element($window).bind('resize', function(event) {
                 console.log("tdMap: Catch window resize event");
                 scope.$apply( function(){ layoutMap()});
+                $mapManager.focusOnNode($appScope.topScope().selectedNode);
             });
         }
     };
 })
 
-.directive('tdNode', function($compile, $mapManager) {
+.directive('tdNode', function($compile, $appScope, $mapManager, $eventManager) {
     return {
         restrict: 'E',
         terminal: true,
         scope: { node: '=tdNode'},
-        template: '<div class="td-node"></div>',
+        template: '<div class="td-node-container"></div>',
         replace: true,
         link: function(scope, iElement, attrs) {
             // console.log("tdNode: Link directive tdNode");
             //            console.log("tdNode: node: " + scope.node.label);
 
             var contentScope;
+            scope.node.element = iElement;
 
             function layoutNode() {
                 // console.log( "Layout node:" + scope.node);
-                // console.log( "call function layoutNode:" + Object.prototype.toString.call(scope.node) + "/" + scope.node.label);
-                //console.log( "node: " + JSON.stringify( scope.node));
 
+                // remove previous DOM
                 iElement.contents().remove();
                 if(contentScope){
                     contentScope.$destroy();
                     contentScope = null;
                 }
 
-                iElement.css('background-color', $mapManager.toHexString( scope.node.bgcolor));
-
+                // define the bounding box of this node
                 var top = scope.node.box.top, 
                     left = scope.node.box.left,
                     width = scope.node.box.width, 
                     height = scope.node.box.height;
-                var childElement, labelElement;
-                
-                // define the bounding box of this node
+
                 iElement.css('top', top.toFixed(0) + "px");
                 iElement.css('left', left.toFixed(0) + "px");
                 iElement.css('width', width.toFixed(0) + "px");
                 iElement.css('height', height.toFixed(0) + "px");
+                iElement.css('background-color', $mapManager.toHexString( scope.node.bgcolor));
+
+                // define the inner box of the node
+                var innerElement;
+                innerElement = angular.element('<div class="td-node"></div>');
+                innerElement.bind( 'click',function(){$eventManager.onClick(event, scope, iElement)});
+                iElement.append( innerElement);
 
                 // define the label box of the node
+                var labelElement;
                 labelElement = angular.element('<td-label td-node="node"></td-label>');
-                iElement.append( labelElement);
+                innerElement.append( labelElement);
 
                 // define the childnode box of the node
+                var childElement;
                 if (angular.isArray(scope.node.nodes)) {
                     childElement = angular.element(
-                        '<div class="td-child-nodes"><td-node ng-repeat="child in node.nodes" td-node="child"></td-node></div>');
+                        '<div class="td-child-nodes">' +
+                            '<td-node ng-repeat="child in node.nodes" td-node="child"></td-node>' +
+                        '</div>'
+                    );
                     childElement.css('top', "20px");
                     childElement.css('height', (height - 20).toFixed(0) + "px");
-                    iElement.append(childElement);
+                    innerElement.append(childElement);
 
                     // start squarifying
                     $mapManager.colorizeBranch(scope.node);
@@ -158,7 +168,7 @@ angular.module('App.Directives', [])
     };
 })
 
-.directive('tdLabel', function($compile,$eventManager) {
+.directive('tdLabel', function($compile, $appScope, $eventManager) {
     return {
         restrict: 'E',
         terminal: true,
@@ -167,30 +177,25 @@ angular.module('App.Directives', [])
         replace: true,
         link: function (scope, iElement, attrs) {
             //console.log("call function updateLabel");
-            //console.log( "node: " + JSON.stringify( scope.node));
             
-			var label = angular.element( '<input class="td-label-editor" type="text" ng-model="node.label" placeholder="{{node.label}}" style="width: 90%">');
-            scope.node.labelElement = label;
+			var label = angular.element( 
+                '<div class="td-label">' +
+                    '<input class="td-label-editor" type="text" ng-model="node.label" ng-show="node.selected" initFocus>' +
+                    '<p ng-show="!node.selected">{{node.label}}</p>' +
+                '</div>'
+            );
 
-			label.bind( 'change',    function(){    $eventManager.onChange(    event, scope.node)});
-            label.bind( 'keydown',   function(){    $eventManager.onKeydown(   event, scope.node)});
-			label.bind( 'keypress',  function(){    $eventManager.onKeypress(  event, scope.node)});
-            label.bind( 'input',     function(){    $eventManager.onInput(     event, scope.node)});
-            label.bind( 'focus',     function(){    $eventManager.onFocus(     event, scope.node)});
+            label.bind( 'keydown',   function(){    $eventManager.onKeydown(   event, scope, iElement)});
+			label.bind( 'keypress',  function(){    $eventManager.onKeypress(  event, scope, iElement)});
+            label.bind( 'input',     function(){    $eventManager.onInput(     event, scope, iElement)});
+            label.bind( 'focus',     function(){    $eventManager.onFocus(     event, scope, iElement)});
 			iElement.append( label);
-
-            scope.$on( 'focusOnLabel', function( event, args){
-                if( scope.node.path() === args.targetPath){
-                    console.log("tdLabel: Catch event focus on node: " + scope.node);
-                    // event.stopPropagation();
-                    label[0].focus();
-                } 
-            });
             
             $compile(iElement.contents())(scope.$new());
         }
     };
-});
+})
+;
 
 
 

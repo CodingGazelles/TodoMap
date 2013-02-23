@@ -12,7 +12,9 @@ TdNode.extended = {
     "parent": null,
     "bgcolor": "#ffffff",
     "hueRange": 360,
-    "labelElement": null
+    "labelElement": null,
+    "element": null,
+    "selected": false
 };
 
 function TdNode(data) {
