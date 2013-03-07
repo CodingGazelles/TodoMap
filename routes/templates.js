@@ -6,6 +6,14 @@ exports.navbar = function(req, res){
   res.render('partials/navbar', { title: 'NavBar' });
 };
 
+/*
+ * GET help.
+ */
+
+exports.help = function(req, res){
+  res.render('partials/help', { title: 'Help' });
+};
+
 
 /*
  * GET todomap.

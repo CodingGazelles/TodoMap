@@ -45,6 +45,7 @@ app.configure('production', function () {
 
 app.get('/', routes.index);
 app.get('/partials/navbar', templates.navbar);
+app.get('/partials/help', templates.help);
 app.get('/views/todomap/index', templates.todomap);
 
 
