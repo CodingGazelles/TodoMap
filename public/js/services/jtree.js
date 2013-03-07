@@ -37,7 +37,7 @@ TdNode.prototype = {
         return this.nodes.length != 0 ? this.nodes.last : null;
     },
 
-    next: function(){
+    nextSibling: function(){
         if( this.isRoot()){
             return null;
         } else if( this.parent.nodes.length - this.index > 1) {
@@ -47,7 +47,7 @@ TdNode.prototype = {
         }
     },
 
-    previous: function(){
+    previousSibling: function(){
         if( this.isRoot()){
             return null;
         } else if( this.index > 0){
@@ -74,28 +74,10 @@ TdNode.prototype = {
         return this.nodes[i];
     },
 
-    createSibling: function() {
-        var newNode = new TdNode();
-        newNode.weight = this.weight;
-        this.parent._insertChild(newNode, this.index + 1);
-        return newNode;
-    },
-
-    delete: function() {
-        this.parent._deleteChild(this.index);
-        // this.parent = null;
-    },
-
-    _pushChild: function(node) {
-        if(!node) throw new Error("Node can't be null or undefined");
-
-        this.nodes.push(node);
-        this._reindexNodes();
-        // this._rebaseWeight();
-    },
-
-    _insertChild: function(node, index) {
+    insertChild: function(node, index) {
         if(index === null || index === undefined) throw new Error("Index can't be null or undefined: " + index);
+        if(typeof index !== "number") throw new Error("Index must be a positive integer, not: " + index);
+        if(Math.round(index) !== index)throw new Error("Index must be a positive integer, not: " + index);
         if (index < 0) throw new RangeError("Index of node to insert can't be negative");
         if (index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
 
@@ -105,10 +87,12 @@ TdNode.prototype = {
         this._rebaseWeight();
     },
 
-    _deleteChild: function(index) {
+    deleteChild: function(index) {
         if(index === null || index === undefined) throw new Error("Index can't be null or undefined: " + index);
-        if (index < 0) throw new RangeError("Index of node to insert can't be negative");
-        if (index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
+        if(typeof index !== "number") throw new Error("Index must be a positive integer, not: " + index);
+        if(Math.round(index) !== index)throw new Error("Index must be a positive integer, not: " + index);
+        if(index < 0) throw new RangeError("Index must be a positive integer, not: " + index);
+        if(index > this.length) throw new RangeError("Index of node to insert can't be higher than list length");
 
         var node = this.nodes[index];
         // node.parent = null;
@@ -132,6 +116,14 @@ TdNode.prototype = {
         this.nodes.forEach(function(node) {
             node.weight = Math.round( node.weight * 100 / totalWeight * 1000) / 1000;
         });
+    },
+
+    _pushChild: function(node) {
+        if(!node) throw new Error("Node can't be null or undefined");
+
+        this.nodes.push(node);
+        this._reindexNodes();
+        // this._rebaseWeight();
     },
 
     toString: function() {

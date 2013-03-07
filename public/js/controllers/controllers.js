@@ -9,6 +9,6 @@ angular.module('App.Controllers', [])
 .controller('AppCtrl', ['$rootScope', '$debounce', function($rootScope, $debounce) {}])
 
 .controller('TodomapCtrl', ['$appScope', '$treeManager', function($appScope, $treeManager) {
-	$treeManager.loadTree("51200e6f22efc59ed1000001");
+	$treeManager.loadTree("5137f1b9555711c447000001");
 	$appScope.topScope().selectedNode = null;
 }]);

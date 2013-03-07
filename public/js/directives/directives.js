@@ -75,7 +75,7 @@ angular.module('App.Directives', [])
             angular.element($window).bind('resize', function(event) {
                 console.log("tdMap: Catch window resize event");
                 scope.$apply( function(){ layoutMap()});
-                $mapManager.focusOnNode($appScope.topScope().selectedNode);
+                if($appScope.topScope().selectedNode) $mapManager.focusNode($appScope.topScope().selectedNode);
             });
         }
     };
@@ -177,21 +177,51 @@ angular.module('App.Directives', [])
         replace: true,
         link: function (scope, iElement, attrs) {
             //console.log("call function updateLabel");
+
+            var contentScope;
             
-			var label = angular.element( 
-                '<div class="td-label">' +
-                    '<input class="td-label-editor" type="text" ng-model="node.label" ng-show="node.selected" initFocus>' +
-                    '<p ng-show="!node.selected">{{node.label}}</p>' +
-                '</div>'
+            function layoutLabel(){
+                // console.log( "Layout node label:" + scope.node);
+
+                // remove previous DOM
+                iElement.contents().remove();
+                if(contentScope){
+                    contentScope.$destroy();
+                    contentScope = null;
+                }
+
+                var label;
+                if(scope.node.selected){
+                    label = angular.element('<input class="td-label-editor" type="text" ng-model="node.label">');
+                }else{
+                    label = angular.element('<p>{{node.label}}</p>');
+                }
+
+                label.bind( 'keydown',   function(){    $eventManager.onKeydown(   event, scope, iElement)});
+                label.bind( 'keypress',  function(){    $eventManager.onKeypress(  event, scope, iElement)});
+                label.bind( 'input',     function(){    $eventManager.onInput(     event, scope, iElement)});
+                label.bind( 'focus',     function(){    $eventManager.onFocus(     event, scope, iElement)});
+                label.bind( 'blur',     function(){    $eventManager.onBlur(     event, scope, iElement)});
+                iElement.append( label);
+                
+                $compile(iElement.contents())(scope.$new());
+            }
+
+            // redraw label when selected changes
+            scope.$watch(
+                function(){
+                    return scope.node.selected;
+                },
+                function(newValue, oldValue){
+                    if (newValue !== oldValue) {
+                        console.log("tdLabel: Watch node selected/unselected: " + scope.node);
+                        layoutLabel();
+                    }
+                },
+                true
             );
 
-            label.bind( 'keydown',   function(){    $eventManager.onKeydown(   event, scope, iElement)});
-			label.bind( 'keypress',  function(){    $eventManager.onKeypress(  event, scope, iElement)});
-            label.bind( 'input',     function(){    $eventManager.onInput(     event, scope, iElement)});
-            label.bind( 'focus',     function(){    $eventManager.onFocus(     event, scope, iElement)});
-			iElement.append( label);
-            
-            $compile(iElement.contents())(scope.$new());
+            layoutLabel();
         }
     };
 })
