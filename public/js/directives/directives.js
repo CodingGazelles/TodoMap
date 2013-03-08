@@ -194,7 +194,11 @@ angular.module('App.Directives', [])
                 if(scope.node.selected){
                     label = angular.element('<input class="td-label-editor" type="text" ng-model="node.label">');
                 }else{
-                    label = angular.element('<p>{{node.label}}</p>');
+                    if(scope.node.label!==""){
+                        label = angular.element('<p>{{node.label}}</p>');
+                    }else{
+                        label = angular.element('<p>...</p>');
+                    }
                 }
 
                 label.bind( 'keydown',   function(){    $eventManager.onKeydown(   event, scope, iElement)});
