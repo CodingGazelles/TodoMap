@@ -57,14 +57,14 @@ angular.module('App.Directives', [])
                 true
             );
 
-            // redraw node when # of child nodes changes
+            // redraw node when redraw flag changes
             scope.$watch(
                 function(){
-                    return scope.node ? scope.node.nodes.length : -1;
+                    return scope.node ? scope.node.redraw : 0;
                 },
                 function(newValue, oldValue){
                     if (newValue !== oldValue) {
-                        console.log("tdMap: Watch # of nodes changed: " + scope.node);
+                        console.log("tdMap: Watch redraw flag node changed: " + scope.node);
                         _layoutMap();
                     }
                 },
@@ -75,13 +75,13 @@ angular.module('App.Directives', [])
             angular.element($window).bind('resize', function(event) {
                 console.log("tdMap: Catch window resize event");
                 scope.$apply( function(){ layoutMap()});
-                if($appScope.topScope().selectedNode) $mapManager.focusNode($appScope.topScope().selectedNode);
+                $mapManager.focusOnSelectedNode();
             });
         }
     };
 })
 
-.directive('tdNode', function($compile, $appScope, $mapManager, $eventManager) {
+.directive('tdNode', function($compile, $appScope, $debounce, $mapManager, $eventManager) {
     return {
         restrict: 'E',
         terminal: true,
@@ -149,14 +149,16 @@ angular.module('App.Directives', [])
                 $compile(iElement.contents())(contentScope);
             }
 
-            // redraw node when # of child nodes changes
+            // var layoutNode = $debounce( _layoutNode, 400, false);
+
+            // redraw node when redraw flag changes
             scope.$watch(
                 function(){
-                    return scope.node.nodes.length;
+                    return scope.node ? scope.node.redraw : 0;
                 },
                 function(newValue, oldValue){
                     if (newValue !== oldValue) {
-                        console.log("tdNode: Watch # of nodes changed: " + scope.node);
+                        console.log("tdMap: Watch redraw flag node changed: " + scope.node);
                         layoutNode();
                     }
                 },
@@ -210,20 +212,6 @@ angular.module('App.Directives', [])
                 
                 $compile(iElement.contents())(scope.$new());
             }
-
-            // redraw label when selected changes
-            scope.$watch(
-                function(){
-                    return scope.node.selected;
-                },
-                function(newValue, oldValue){
-                    if (newValue !== oldValue) {
-                        console.log("tdLabel: Watch node selected/unselected: " + scope.node);
-                        layoutLabel();
-                    }
-                },
-                true
-            );
 
             layoutLabel();
         }
