@@ -11,6 +11,22 @@ Object.defineProperty(Array.prototype, 'last', {
     set: undefined
 });
 
+// Add property toString to KeyboardEvent
+Object.defineProperty(KeyboardEvent.prototype, 'toString', {
+    enumerable: false,
+    configurable: true,
+    get: function() {
+        return "[object KeyboardEvent, type: " + this.type 
+            // + ", currentTarget: " + this.currentTarget
+            + ", keyCode: " + this.keyCode 
+            + ", shiftKey: " + this.shiftKey
+            + ", altKey: " + this.altKey
+            + ", ctrlKey: " + this.ctrlKey
+            + "]";
+    },
+    set: undefined
+});
+
 angular.module( 'App.Utils', [])
 
 .factory('$appScope', ['$rootScope', function($rootScope) {
