@@ -14,7 +14,8 @@ TdNode.extended = {
     "hueRange": 360,
     "labelElement": null,
     "element": null,
-    "selected": false
+    "selected": false,
+    "redraw": 0
 };
 
 function TdNode(data) {
@@ -84,7 +85,7 @@ TdNode.prototype = {
         node.parent = this;
         this.nodes.splice(index, 0, node);
         this._reindexNodes();
-        this._rebaseWeight();
+        this.rebaseWeight();
     },
 
     deleteChild: function(index) {
@@ -98,7 +99,7 @@ TdNode.prototype = {
         // node.parent = null;
         this.nodes.splice(index, 1);
         this._reindexNodes();
-        this._rebaseWeight();
+        this.rebaseWeight();
         return node;
     },
 
@@ -108,7 +109,7 @@ TdNode.prototype = {
         });
     },
 
-    _rebaseWeight: function() {
+    rebaseWeight: function() {
         var totalWeight = 0;
         this.nodes.forEach(function(node) {
             totalWeight += node.weight;
@@ -123,11 +124,11 @@ TdNode.prototype = {
 
         this.nodes.push(node);
         this._reindexNodes();
-        // this._rebaseWeight();
+        // this.rebaseWeight();
     },
 
     toString: function() {
-        return "TdNode " + this.path() + " (" + this.label + ")";
+        return "[object TdNode " + this.path() + " (" + this.label + ")]";
     }
 };
 
