@@ -3,33 +3,77 @@
   margin: 0px;
   padding: 0px;
 }
+#td-map {
+  width: 90%;
+  height: 500px;
+  margin: 0 auto;
+}
+.positioned {
+  position: absolute;
+}
 .td-node-container {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  border-radius: 3px;
+}
+.bordered-dark {
+  border-radius: 3px;
+  border: 1px solid #404040;
+}
+.bordered-grey {
+  border-radius: 3px;
+  border: 1px solid #0f0f0f;
 }
 .td-node {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  overflow: hidden;
+  background-color: white;
+}
+.td-node .level1,
+.td-node .level2,
+.td-node .level3 {
+  border-radius: 3px;
+  border: 1px solid #404040;
+  margin: 2px;
+}
+.td-node .level4,
+.td-node .level5,
+.td-node .level6 {
+  border-radius: 3px;
+  border: 1px solid #0f0f0f;
+  margin: 1px;
 }
 .td-top-node {
-  position: absolute;
-  width: 100%;
+  position: relative;
   height: 100%;
+  border-radius: 3px;
+  background-color: black;
 }
 .td-child-nodes {
   position: absolute;
-  width: 100%;
-  height: 100%;
 }
 .td-terminal-node {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  overflow: hidden;
+  background-color: white;
 }
-.td-label {
-  width: 90%;
+.td-terminal-node .level1,
+.td-terminal-node .level2,
+.td-terminal-node .level3 {
+  border-radius: 3px;
+  border: 1px solid #404040;
+  margin: 2px;
+}
+.td-terminal-node .level4,
+.td-terminal-node .level5,
+.td-terminal-node .level6 {
+  border-radius: 3px;
+  border: 1px solid #0f0f0f;
+  margin: 1px;
+}
+.td-header {
+  padding: 2px;
+  text-align: center;
+  margin: auto;
 }
 .td-h {
   display: inline-block;
