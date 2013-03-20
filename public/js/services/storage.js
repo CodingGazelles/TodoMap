@@ -22,12 +22,12 @@ angular.module('App.Services.Storage', ['ngResource'])
             this.store.getMap(
                 {id: mapId},
                 function( data){
-                    console.log("$storage: Load map succeeded");
+                    console.log("$storage: Load data succeeded");
                     // console.log("$storage: $scope.todoTree: " + JSON.stringify(data));
                     successFn(data);
                 },
                 function( data){
-                    console.log("$storage: Load map failed");
+                    console.log("$storage: Load data failed");
                     console.log("$storage: Returned data: " + data);
                     failureFn(data);
                    // console.log("$storage: $scope.mapData: " + JSON.stringify(data));
@@ -36,7 +36,7 @@ angular.module('App.Services.Storage', ['ngResource'])
         },
 
         saveTree: function(tree, successFn, failFn){
-            console.log("$storage: Save tree");
+            console.log("$storage: Save data");
 
             successFn = successFn || function(){};
             failFn = failFn || function(){};
