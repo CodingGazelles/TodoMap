@@ -1,49 +1,66 @@
 //
 // test/unit/services/servicesSpec.js
 //
-describe("Unit: Testing service $treeManager: ", function() {
+describe("Unit Testing/ service $treeManager/", function() {
 
     beforeEach(angular.mock.module('App'));
 
-    it('should contain an $treeManager service', inject(function($treeManager) {
+    it('should contain a $treeManager service', inject(function($treeManager) {
         expect($treeManager).toBeTruthy();
     }));
 
-    it('should have a working $treeManager', inject(function($treeManager) {
+    it('should have functions to delete a node', inject(function($treeManager) {
         expect($treeManager.deleteNode).toBeTruthy();
-        expect($treeManager.createSibling).toBeTruthy();
-
     }));
 
-    describe("Delete a node: ", function() {
+    it('should have functions to create a sibling node', inject(function($treeManager) {
+        expect($treeManager.createSibling).toBeTruthy();
+    }));
 
-        var root;
-        var city, people;
+    describe("Delete node/", function() {
 
-        beforeEach(inject(function($storage) {
+        var root, city, people, food, paris;
+
+        beforeEach(inject(function($treeManager) {
             var jsonObj = {
                 "label": "root",
                 "weight": 100,
                 "opened": true,
                 "index": 0,
-                "childNodes": [{
+                "nodes": [{
                     "label": "City",
                     "weight": 32.778,
                     "opened": true,
                     "index": 0,
-                    "childNodes": []
+                    "nodes": [{
+                        "label": "Paris",
+                        "weight": 100,
+                        "opened": true,
+                        "index": 0,
+                        "nodes": []
+                    }]
                 }, {
                     "label": "People",
                     "weight": 38.889,
                     "opened": true,
                     "index": 1,
-                    "childNodes": []
+                    "nodes": []
+                }, {
+                    "label": "Food",
+                    "weight": 28.333,
+                    "opened": true,
+                    "index": 2,
+                    "nodes": []
                 }]
             };
 
-            root = $storage._extendTree(jsonObj);
-            city = root.nodes[0];
-            people = root.nodes[1];
+            $treeManager.initTree(jsonObj);
+            root = $treeManager._tree;
+
+            city = root.node(0);
+            people = root.node(1);
+            food = root.node(2);
+            paris = city.node(0);
         }));
 
         it("should be impossible to delete nothing", inject(function($treeManager) {
@@ -58,29 +75,95 @@ describe("Unit: Testing service $treeManager: ", function() {
 
         it("should be possible to delete city", inject(function($treeManager) {
             $treeManager.deleteNode(city);
-            expect(root.nodes.length).toEqual(1);
+            expect(root.nodes.length).toEqual(2);
             expect(root.nodes.indexOf(city)).toEqual(-1);
         }));
 
-        it("should updates the links of city", inject(function($treeManager) {
-            $treeManager.deleteNode(city);
-            expect(city.parent).toBeNull();
+        it("should be possible to delete paris", inject(function($treeManager) {
+            $treeManager.deleteNode(paris);
+            expect(city.nodes.length).toEqual(0);
+            expect(city.nodes.indexOf(paris)).toEqual(-1);
         }));
 
-        it("should updates the links of root", inject(function($treeManager) {
-            $treeManager.deleteNode(city);
-            expect(root.tail()).toEqual(people);
-            expect(root.head()).toEqual(people);
+        it("should be possible to delete people", inject(function($treeManager) {
+            $treeManager.deleteNode(people);
+            expect(root.nodes.length).toEqual(2);
+            expect(root.nodes.indexOf(people)).toEqual(-1);
+        }));
+
+        it("should be possible to delete food", inject(function($treeManager) {
+            $treeManager.deleteNode(food);
+            expect(root.nodes.length).toEqual(2);
+            expect(root.nodes.indexOf(food)).toEqual(-1);
+        }));
+
+    });
+
+    describe("Delete people/", function() {
+
+        var root, city, people, food, paris;
+
+        beforeEach(inject(function($treeManager) {
+            var jsonObj = {
+                "label": "root",
+                "weight": 100,
+                "opened": true,
+                "index": 0,
+                "nodes": [{
+                    "label": "City",
+                    "weight": 32.778,
+                    "opened": true,
+                    "index": 0,
+                    "nodes": [{
+                        "label": "Paris",
+                        "weight": 100,
+                        "opened": true,
+                        "index": 0,
+                        "nodes": []
+                    }]
+                }, {
+                    "label": "People",
+                    "weight": 38.889,
+                    "opened": true,
+                    "index": 1,
+                    "nodes": []
+                }, {
+                    "label": "Food",
+                    "weight": 28.333,
+                    "opened": true,
+                    "index": 2,
+                    "nodes": []
+                }]
+            };
+
+            $treeManager.initTree(jsonObj);
+            root = $treeManager._tree;
+
+            city = root.node(0);
+            people = root.node(1);
+            food = root.node(2);
+            paris = city.node(0);
+        }));
+
+        it("should updates the parent of people", inject(function($treeManager) {
+            $treeManager.deleteNode(people);
+            expect(people.parent).toBeNull();
+        }));
+
+        it("should not updates the links of root", inject(function($treeManager) {
+            $treeManager.deleteNode(people);
+            expect(root.head()).toEqual(city);
+            expect(root.tail()).toEqual(food);
         }));
 
         it("should updates the links of people", inject(function($treeManager) {
-            $treeManager.deleteNode(city);
+            $treeManager.deleteNode(people);
             expect(people.next()).toBeNull();
             expect(people.previous()).toBeNull();
         }));
 
         it("should reindex the tree", inject(function($treeManager) {
-            $treeManager.deleteNode(city);
+            $treeManager.deleteNode(people);
             expect(people.index).toEqual(0);
         }));
 
@@ -89,56 +172,61 @@ describe("Unit: Testing service $treeManager: ", function() {
     });
 
 
-    describe("Create a sibling: ", function() {
+    describe("Create a sibling/", function() {
 
         var root;
         var city, people;
 
-        beforeEach(inject(function($storage) {
+        beforeEach(inject(function($treeManager) {
             var jsonObj = {
                 "label": "root",
                 "weight": 100,
                 "opened": true,
                 "index": 0,
-                "childNodes": [{
+                "nodes": [{
                     "label": "City",
                     "weight": 61.111,
                     "opened": true,
                     "index": 0,
-                    "childNodes": []
+                    "nodes": []
                 }, {
                     "label": "People",
                     "weight": 38.889,
                     "opened": true,
                     "index": 1,
-                    "childNodes": []
+                    "nodes": []
                 }]
             };
 
-            root = $storage._extendTree(jsonObj);
+            $treeManager.initTree(jsonObj);
+            root = $treeManager._tree;
             city = root.nodes[0];
             people = root.nodes[1];
         }));
 
-        it("should be impossible to create a sibling to root", inject(function($treeManager) {
-            expect((function() {
-                $treeManager.createSibling(root)
-            })).toThrow();
-        }));
+        describe("root/", function() {
 
-        it("should be really impossible to create a sibling to root", inject(function($treeManager) {
-            try {
-                $treeManager.createSibling(root)
-            } catch(e) {
-                //nothing
-            }
-            expect(root.next()).toBeNull();
-        }));
+            it("should be impossible to create a sibling to root", inject(function($treeManager) {
+                expect((function() {
+                    $treeManager.createSibling(root)
+                })).toThrow();
+            }));
+
+            it("should be really impossible to create a sibling to root", inject(function($treeManager) {
+                try {
+                    $treeManager.createSibling(root)
+                } catch(e) {
+                    //nothing
+                }
+                expect($treeManager.getNextSiblingNode(root)).toBeNull();
+            }));
+
+        });
 
         // sibling of city
-        describe("A sibling of city ", function() {
+        describe("city/", function() {
 
-            var sibling
+            var sibling;
 
             it("should be possible to create a sibling of city", inject(function($treeManager) {
                 expect((function() {
@@ -150,7 +238,8 @@ describe("Unit: Testing service $treeManager: ", function() {
                 sibling = $treeManager.createSibling(city);
             }));
 
-            it("should be possible to recover the sibling of city", inject(function($treeManager) {
+            it("expects the sibling of city to be thruthy", inject(function($treeManager) {
+                // sibling = $treeManager.createSibling(city);
                 expect(sibling).toBeTruthy();
                 expect(sibling).not.toBeNull();
                 expect(sibling).not.toBeUndefined();
@@ -246,11 +335,13 @@ describe("Unit: Testing service $treeManager: ", function() {
         });
 
         // sibling of people
-        it("should be possible to create a sibling of people", inject(function($treeManager) {
-            expect((function() {
-                $treeManager.createSibling(people);
-            })).not.toThrow();
-        }));
+        describe("people/", function() {
+            it("should be possible to create a sibling of people", inject(function($treeManager) {
+                expect((function() {
+                    $treeManager.createSibling(people);
+                })).not.toThrow();
+            }));
+        });
 
 
         //TODO: need to test the weigth of the new nodes !!!!!
