@@ -58,13 +58,14 @@ MapBuilder.prototype = {
         var node;
         for(var i = 0; i < this.pendingNodes.length; i++ ) {
             node = this.pendingNodes[i];
-            if( node.opened){
-                node.area = node.weight / 100 * this.boundingBox.area;
-            } else {
-                node.area = function(){
-                    return 20 * this.currentZone.width;
-                }
-            }
+            node.area = node.weight / 100 * this.boundingBox.area;
+            // if( node.opened){
+            //     node.area = node.weight / 100 * this.boundingBox.area;
+            // } else {
+            //     node.area = function(){
+            //         return 20 * this.currentZone.width;
+            //     }
+            // }
         }
     },
 
