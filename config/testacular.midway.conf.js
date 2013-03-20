@@ -16,7 +16,7 @@ MOCHA_ADAPTER,
     './public/js/directives/*.js',
     './public/js/services/*.js',
     './public/js/filters/*.js',
-    './public/js/routes.js',
+    './public/config/routes.js',
     './public/js/app.js',
 
 //Test-Specific Code

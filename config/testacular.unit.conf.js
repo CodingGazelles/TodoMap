@@ -14,13 +14,14 @@ files = [
     './public/lib/angular/angular-resource.min.js',
     './public/lib/underscore-min.js',
     './public/lib/tinycolor.js',
+    './public/lib/app.router.js',
 
     //App-specific Code
     './public/js/controllers/*.js',
     './public/js/directives/*.js',
     './public/js/services/*.js',
     './public/js/filters/*.js',
-    './public/js/routes.js',
+    './public/config/*.js',
     './public/js/app.js',
 
     //Test-Specific Code

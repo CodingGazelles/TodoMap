@@ -13,8 +13,20 @@ describe("Midway: Testing Modules", function() {
       expect(module).to.be.ok;
     });
 
-    it("should have a module App.Services registered", function(){
-      expect( angular.module('App.Services')).to.be.ok;
+    it("should have a module App.Services.Events registered", function(){
+      expect( angular.module('App.Services.Events')).to.be.ok;
+    });
+
+    it("should have a module App.Services.Map registered", function(){
+      expect( angular.module('App.Services.Map')).to.be.ok;
+    });
+
+    it("should have a module App.Services.Tree registered", function(){
+      expect( angular.module('App.Services.Tree')).to.be.ok;
+    });
+
+    it("should have a module App.Services.Storage registered", function(){
+      expect( angular.module('App.Services.Storage')).to.be.ok;
     });
 
     describe("Dependencies:", function() {
@@ -44,8 +56,20 @@ describe("Midway: Testing Modules", function() {
         expect(hasModule('App.Routes')).to.equal(true);
       });
 
-      it("should have App.Services as a dependency", function() {
-        expect(hasModule('App.Services')).to.equal(true);
+      it("should have App.Services.Events as a dependency", function() {
+        expect(hasModule('App.Services.Events')).to.equal(true);
+      });
+
+      it("should have App.Services.Map as a dependency", function() {
+        expect(hasModule('App.Services.Map')).to.equal(true);
+      });
+
+      it("should have App.Services.Tree as a dependency", function() {
+        expect(hasModule('App.Services.Tree')).to.equal(true);
+      });
+
+      it("should have App.Services.Storage as a dependency", function() {
+        expect(hasModule('App.Services.Storage')).to.equal(true);
       });
     });
   });
