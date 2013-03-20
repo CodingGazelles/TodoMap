@@ -6,15 +6,8 @@ angular.module('App.Services.Tree', ['ngResource'])
 .factory('$treeManager', ['$storage', '$appScope', '$injector', '$debounce', function($storage, $appScope, $injector, $debounce) {
     return {
 
-        toArray: function(){
-            var array = [];
-            var node = root.head();
-            while(!node.isRoot()){
-                array.push(node);
-                node = node.getNextNode();
-            }
-            return array;
-        },
+        _tree: undefined,
+        _nodeArray: undefined,
 
         signalToRedrawNode: function(node){
             if(!node) throw new Error("Node can't be null or undefined");
@@ -25,18 +18,18 @@ angular.module('App.Services.Tree', ['ngResource'])
         increaseNodeWeight: function(node){
             if(!node) throw new Error("Node can't be null or undefined");
             node.weight = node.weight * 1.05;
-            node.parent.rebaseWeight();
+            node.parent.rebaseChildNodeWeight();
         },
 
         decreaseNodeWeight: function(node){
             if(!node) throw new Error("Node can't be null or undefined");
             node.weight = node.weight * 0.95;
-            node.parent.rebaseWeight();
+            node.parent.rebaseChildNodeWeight();
         },
 
         getNextSiblingNode: function(node){
             if(!node) throw new Error("Node can't be null or undefined");
-            if( node.isRoot()){
+            if(node.isRoot()){
                 return null;
             } else if( node.parent.nodes.length - node.index > 1) {
                 return node.parent.node( node.index + 1)
@@ -57,53 +50,68 @@ angular.module('App.Services.Tree', ['ngResource'])
             }
         },
 
-        getNextNode: function(node) {
+        getNextNode: function(node){
+            if(!node) throw new Error("Node can't be null or undefined");
+            var nextIndex = (node.treeIndex + 1)%this._nodeArray.length;
+            return this._nodeArray[nextIndex];
+        },
+
+        _getNextNode: function(node) {
             if(!node) throw new Error("Node can't be null or undefined");
             var nextNode;
 
             if(node.head()) {
-                nextNode = node.head();     // first child node
-            } else if(getNextSiblingNode(node)) {
-                nextNode = getNextSiblingNode(node);     // next node
+                // first child node
+                nextNode = node.head();     
+            } else if(this.getNextSiblingNode(node)) {
+                // next sibling
+                nextNode = this.getNextSiblingNode(node);     
             } else {
+                // first next sibling amongs parent hierarchy
                 var tmp = node;
                 do {
                     tmp = tmp.parent;
-                } while (!getNextSiblingNode(tmp) && !tmp.isRoot())  // find first parent having a next node or root node
+                } while (!this.getNextSiblingNode(tmp) && !tmp.isRoot())  // find first parent having a next node or root node
                 if(tmp.isRoot()) {
-                    nextNode = tmp.head();
+                    nextNode = tmp;
                 } else {
-                    nextNode = getNextSiblingNode(tmp);
+                    nextNode = this.getNextSiblingNode(tmp);
                 }
             }
             return nextNode;
         },
 
-        getPreviousNode: function(node) {
+        getPreviousNode: function(node){
             if(!node) throw new Error("Node can't be null or undefined");
-            var nextNode;
-
-            if(getPreviousSiblingNode(node)) {
-                nextNode = getPreviousSiblingNode(node);
-                while(nextNode.tail()){
-                    nextNode = nextNode.tail()
-                }
-            }else {
-                nextNode = node.parent;
-                if(nextNode.isRoot()){
-                    while(nextNode.tail()){
-                        nextNode = nextNode.tail()
-                    }
-                }
-            }
-            return nextNode;
+            var prevIndex = (node.treeIndex - 1 + this._nodeArray.length)%this._nodeArray.length;
+            return this._nodeArray[prevIndex];
         },
+
+        // getPreviousNode: function(node) {
+        //     if(!node) throw new Error("Node can't be null or undefined");
+        //     var nextNode;
+
+        //     if(this.getPreviousSiblingNode(node)) {
+        //         nextNode = this.getPreviousSiblingNode(node);
+        //         while(nextNode.tail()){
+        //             nextNode = nextNode.tail()
+        //         }
+        //     }else {
+        //         nextNode = node.parent;
+        //         if(nextNode.isRoot()){
+        //             while(nextNode.tail()){
+        //                 nextNode = nextNode.tail()
+        //             }
+        //         }
+        //     }
+        //     return nextNode;
+        // },
 
         moveLevelDown: function(node){
             if(!node) throw new Error("Node can't be null or undefined");
-            if(!getPreviousSiblingNode(node)) throw new Error("Can't move down level of node that has no previous sibling: " + node);
+            if(!this.getPreviousSiblingNode(node)) throw new Error("Can't move down level of node that has no previous sibling: " + node);
             console.log("$treeManager: Move down level of node: " + node);
-            this.moveNodeTo(node, getPreviousSiblingNode(node), getPreviousSiblingNode(node).tail().index + 1);
+            this.moveNodeTo(node, this.getPreviousSiblingNode(node), this.getPreviousSiblingNode(node).tail().index + 1);
         },
 
         moveLevelUp: function(node){
@@ -126,7 +134,7 @@ angular.module('App.Services.Tree', ['ngResource'])
             if(!parent) throw new Error("Parent can't be null or undefined");
             if(!index) throw new Error("Index can't be null or undefined");
             console.log("$treeManager: Move node: " + node + " to index:" + index + " of node:" + parent);
-            node.parent.deleteChild(node.index);
+            this.deleteChild(node.parent, node.index);
             parent.insertChild(node, index);
         },
 
@@ -134,17 +142,19 @@ angular.module('App.Services.Tree', ['ngResource'])
             if(index === null || index === undefined) throw new Error("Index can't be null or undefined: " + index);
             if(typeof index !== "number") throw new Error("Index must be a positive integer, not: " + index);
             if(Math.round(index) !== index)throw new Error("Index must be a positive integer, not: " + index);
-            if (index < 0) throw new RangeError("Index of node to insert can't be negative");
-            if (index > parent.length) throw new RangeError("Index of node to insert can't be higher than list length");
+            if(index < 0) throw new RangeError("Index of node to insert can't be negative");
+            if(index > parent.length) throw new RangeError("Index of node to insert can't be higher than list length");
 
             node.parent = parent;
             parent.nodes.splice(index, 0, node);
-            parent.rebuildIndex();
-            parent.rebaseWeight();
+            parent.rebuildChildNodeIndex();
+            parent.rebaseChildNodeWeight();
+            this.reconfigTree();
         },
 
         deleteChild: function(parent, index) {
-            if(index === null || index === undefined) throw new Error("Index can't be null or undefined: " + index);
+            if(!parent) throw new Error("Parent can't be null or undefined");
+            if(!index && index !== 0) throw new Error("Index can't be null or undefined");
             if(typeof index !== "number") throw new Error("Index must be a positive integer, not: " + index);
             if(Math.round(index) !== index)throw new Error("Index must be a positive integer, not: " + index);
             if(index < 0) throw new RangeError("Index must be a positive integer, not: " + index);
@@ -153,19 +163,20 @@ angular.module('App.Services.Tree', ['ngResource'])
             var node = parent.nodes[index];
             // node.parent = null;
             parent.nodes.splice(index, 1);
-            parent.rebuildIndex();
-            parent.rebaseWeight();
+            parent.rebuildChildNodeIndex();
+            parent.rebaseChildNodeWeight();
+            this.reconfigTree();
             return node;
         },
 
         deleteNode: function(node){
-            if( !node) throw new Error("Node can't be null or undefined");
-            if( node.isRoot()){
+            if(!node) throw new Error("Node can't be null or undefined");
+            if(node.isRoot()){
                 console.log('WARN: try to delete root');
                 throw new Error("Can't delete root");
             }
             console.log("$treeManager: Delete node: " + node);
-            node.parent.deleteChild(node.index);
+            this.deleteChild(node.parent, node.index);
         },
 
         createSibling: function(node){
@@ -178,7 +189,7 @@ angular.module('App.Services.Tree', ['ngResource'])
 
             var newNode = new TdNode();
             newNode.weight = node.weight;
-            node.parent.insertChild(newNode, node.index + 1);
+            this.insertChild(node.parent, newNode, node.index + 1);
             return newNode;
         },
 
@@ -189,8 +200,9 @@ angular.module('App.Services.Tree', ['ngResource'])
 
         _onLoadingSuccess: function(data){
             console.log("$treeManager: Loading tree succeeded");
-            var tree = $injector.get('$treeManager')._extendTree( data);
-            $appScope.topScope().taskTree = tree;
+            var $manager = $injector.get('$treeManager');
+            $manager.initTree(data);
+            $appScope.topScope().taskTree = $manager._tree;
         },
 
         _onLoadingFailed: function(data){
@@ -212,14 +224,33 @@ angular.module('App.Services.Tree', ['ngResource'])
 
         _saveTree: function(successFn, failureFn){
             console.log("$treeManager: Save tree");
-            var data = this._flattenTree( $appScope.topScope().taskTree);
+            var data = this._flattenTree( this._tree);
             $storage.saveTree( data, successFn, failureFn);
         },
 
-        _extendTree: function(data) {
-            console.log("$treeManager: Extend tree");
+        initTree: function(data){
+            console.log("$treeManager: Init tree");
+            this._tree = this._changePrototype(data);
+            this._buildNodeArray();
+            this._buildTreeIndex();
+            this._buildTreeWeight();
+            console.log("$treeManager: Init tree done");
+            console.log("$treeManager: Tree: " + this._tree.toString(true));
+        },
 
-            var root;
+        reconfigTree: function(){
+            console.log("$treeManager: Reconfig tree");
+            this._buildNodeArray();
+            this._buildTreeIndex();
+            this._buildTreeWeight();
+            console.log("$treeManager: Reconfig tree done");
+            console.log("$treeManager: Tree: " + this._tree.toString(true));
+        },
+
+        _changePrototype: function(data) {
+            console.log("$treeManager: Change prototype to TDNode");
+
+            var newRoot;
             var getNodeData = function(node) {
                 var attr, nodeData = {};
                 for(attr in node) {
@@ -232,12 +263,12 @@ angular.module('App.Services.Tree', ['ngResource'])
                 var newNode;
 
                 if(!parent) {
-                    newNode = root = new TdNode(getNodeData(node));
+                    newNode = newRoot = new TdNode(getNodeData(node));
                 } else {
                     newNode = new TdNode(getNodeData(node));
                     newNode.parent = parent;
                     parent.nodes.push(newNode);
-                    parent.rebuildIndex();
+                    parent.rebuildChildNodeIndex();
                 }
 
                 if("nodes" in node) {
@@ -247,7 +278,39 @@ angular.module('App.Services.Tree', ['ngResource'])
                 } 
             })(data);
 
-            return root;
+            // console.log("$treeManager: Tree: " + newRoot.toString(true));
+
+            return newRoot;
+        },
+
+        _buildNodeArray: function(){
+            console.log("$treeManager: Build node array");
+            var array = [];
+            var tmp = this._tree;
+            do{
+                array.push(tmp);
+                tmp = this._getNextNode(tmp);
+            }while(!tmp.isRoot());
+            this._nodeArray = array;
+            console.log("$treeManager: Found: " + this._nodeArray.length + " nodes" );
+        },
+
+        _buildTreeIndex: function(){
+            console.log("$treeManager: Build tree index ");
+            this._nodeArray.forEach(function(node, index) {
+                node.treeIndex = index;
+            });
+        },
+
+        _buildTreeWeight: function(){
+            console.log("$treeManager: Build tree weight");
+            this._nodeArray.forEach(function(node, index) {
+                if(node.parent){
+                    node.treeWeight = node.weight * node.parent.treeWeight / 100;    
+                } else {
+                    node.treeWeight = node.weight;
+                }
+            });
         },
 
         // flatten the tree, ie, remove non persistent properties from the node tree
