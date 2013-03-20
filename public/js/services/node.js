@@ -2,16 +2,17 @@
 // squeleton of a node, contains the persitant properties of a node
 TdNode.basic = {
     "header": "",
-    "weight": 0,
-    "opened": true,
     "index": 0,
+    "weight": 0,
     "nodes": null
 };
 // squeleton of a node, contains the extended (client side) properties of a node
 TdNode.extended = {
     "parent": null,
-    "bgcolor": "#ffffff",
-    "hueRange": 360,
+    "treeIndex": 0,
+    "treeWeight": 0,
+    "bgcolor": "",
+    "hueRange": 0,
     "labelElement": null,
     "element": null,
     "selected": false,
@@ -58,13 +59,13 @@ TdNode.prototype = {
         return this.nodes[i];
     },
 
-    rebuildIndex: function() {
+    rebuildChildNodeIndex: function() {
         this.nodes.forEach(function(node, index) {
             node.index = index;
         });
     },
 
-    rebaseWeight: function() {
+    rebaseChildNodeWeight: function() {
         var totalWeight = 0;
         this.nodes.forEach(function(node) {
             totalWeight += node.weight;
@@ -74,17 +75,19 @@ TdNode.prototype = {
         });
     },
 
-    toString: function() {
-        return "[object TdNode (path: " + this.path() + ", label:" + this.label + ", weight: " + this.weight + ")]";
-    },
-
-    printBranch: function(tab){
+    toString: function(recursive, tab) {
+        recursive = recursive || false;
         tab = tab || "";
-        console.log(tab + this);
-        if(angular.isArray(this.nodes)){ 
-            this.nodes.forEach(function(childNode){
-                childNode.printBranch(tab + " ");
-            });
+        if(!recursive){
+            return "[object TdNode (path: " + this.path() + ", header:" + this.header + ", weight: " + this.weight + ")]";
+        }else{
+            var log = tab + this.toString();
+            if(angular.isArray(this.nodes)){ 
+                this.nodes.forEach(function(childNode){
+                    log += '\r\n' + childNode.toString(true, tab + "  ")
+                });
+            }
+            return log;
         }
     }
 };
