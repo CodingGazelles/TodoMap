@@ -5,14 +5,15 @@ Run app
 
 Start DB:
 cd /Users/tancrede/Documents/Developement/mongodb-osx-x86_64-2.2.2/bin
-Start Mongo: ./mongod
+./mongod --dbpath '/Users/tancrede/Documents/Developement/Projets/TodoMap/data_db'
 
 
 Start app:
 cd /Users/tancrede/Documents/Developement/Projets/TodoMap/workspace/TodoMap
-Start wep app: node app.js
+node app.js
 
 
 Run tests
+cd /Users/tancrede/Documents/Developement/Projets/TodoMap/workspace/TodoMap
 Start tests servers: ./scripts/server.sh
 Start tests : ./scripts/test.sh
