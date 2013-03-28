@@ -177,6 +177,7 @@ angular.module('App.Services.Tree', ['ngResource'])
             }
             console.log("$treeManager: Delete node: " + node);
             this.deleteChild(node.parent, node.index);
+            node.index = 0;
         },
 
         createSibling: function(node){

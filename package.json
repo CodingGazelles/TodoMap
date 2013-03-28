@@ -1,9 +1,10 @@
 {
   "name": "ToDoMap",
+  "subdomain": "ToDoMap",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app"
+    "start": "node app.js"
   },
   "dependencies": {
     "express": "3.0.0",
@@ -14,5 +15,8 @@
     "testacular"  : "canary",
     "http-server" : "0.5.3",
     "chai"        : "1.4.0"
+  },
+  "engines": {
+    "node": "0.8.x"
   }
 }

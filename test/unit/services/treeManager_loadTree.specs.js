@@ -1,7 +1,7 @@
 //
 // test/unit/services/servicesSpec.js
 //
-describe("Unit Testing/ service $treeManager/", function() {
+describe("Unit Testing/ $treeManager/", function() {
 
     beforeEach(angular.mock.module('App'));
 
@@ -396,7 +396,6 @@ describe("Unit Testing/ service $treeManager/", function() {
             food = root.node(2);
             expect(food.treeIndex).toEqual(4);
         }));
-        
     });
 
     describe("tree weight/", function(){
@@ -455,25 +454,25 @@ describe("Unit Testing/ service $treeManager/", function() {
             expect(city.treeWeight).toEqual(32.778);
         }));
 
-        it('expects paris to have treeWeight of ', inject(function($treeManager){
+        it('expects paris treeWeight to equal  10,817', inject(function($treeManager){
             root = $treeManager._tree;
             city = root.node(0);
             paris = city.node(0);
             expect(paris.treeWeight).toEqual(32.778*33/100);
         }));
 
-        it('expects londres to have treeWeight 2', inject(function($treeManager){
+        it('expects londres treeWeight to equal 7,211', inject(function($treeManager){
             root = $treeManager._tree;
             city = root.node(0);
             london = city.node(1);
-            expect(paris.treeWeight).toEqual(32.778*2/100);
+            expect(london.treeWeight).toEqual(32.778*22/100);
         }));
 
-        it('expects madrid to have treeWeight 2', inject(function($treeManager){
+        it('expects madrid treeWeight to equal 14,750', inject(function($treeManager){
             root = $treeManager._tree;
             city = root.node(0);
             madrid = city.node(2);
-            expect(paris.treeWeight).toEqual(32.778*45/100);
+            expect(madrid.treeWeight).toEqual(32.778*45/100);
         }));
 
         it('expects people to have treeWeight of 38.889', inject(function($treeManager){
@@ -487,7 +486,6 @@ describe("Unit Testing/ service $treeManager/", function() {
             food = root.node(2);
             expect(food.treeWeight).toEqual(28.333);
         }));
-        
     });
     
     describe("walking throught/", function() {
