@@ -1,0 +1,11 @@
+{
+	"google": {
+		"clientId": "834621316694.apps.googleusercontent.com",
+		"clientSecret": "L9BffmEHvVHtktRK-7kqg4-R", 
+		"redirectUrl": "postmessage"
+	},
+	"express":{
+		"cookieParserSecret": "9eM4ERbJ8HwZovPiZCspXCfB",
+		"sessionSecret": "Klbgx-hozZefGDWwoFjIhHjG"
+	}
+}

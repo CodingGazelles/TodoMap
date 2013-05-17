@@ -13,7 +13,7 @@ angular.module('App.Routes', [])
 
     ROUTER.when('todomap_path', '/todomap', {
         controller: 'TodomapCtrl',
-        templateUrl: CONFIG.prepareViewTemplateUrl('todomap/index')
+        templateUrl: CONFIG.prepareViewTemplateUrl('map')
     });
 
     ROUTER.alias('home_path', 'todomap_path');

@@ -1,0 +1,5 @@
+{
+	"db": {
+		"uri":"mongodb://todoapp:todoapp@localhost:27017/todomap"
+	}
+}

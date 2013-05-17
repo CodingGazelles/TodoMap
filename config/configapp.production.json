@@ -1,0 +1,5 @@
+{
+	"db": {
+		"uri":"mongodb://ds047037.mongolab.com:47037/todomap"
+	}
+}
