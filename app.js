@@ -8,7 +8,6 @@ var express = require('express'),
     nconf = require('nconf'),    
     http = require('http'),
     path = require('path'),
-    google = require('./google'),
     routes = require('./routes'),
     sessions = require('./routes/sessions'),
     maps = require('./api/maps'),
@@ -60,9 +59,6 @@ models.defineModels(mongoose, function() {
     app.User = mongoose.model('User');
     db = mongoose.connect(app.set('db-uri'));
 });
-
-
-google.loadApiClient();
 
 
 // Authentication
