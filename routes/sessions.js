@@ -113,7 +113,6 @@ exports.openSession = function(req, res) {
 										req.session.token = undefined;
 
 
-										
 									}
 								});
 

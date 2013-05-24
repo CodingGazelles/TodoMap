@@ -7,5 +7,17 @@
 	"express":{
 		"cookieParserSecret": "9eM4ERbJ8HwZovPiZCspXCfB",
 		"sessionSecret": "Klbgx-hozZefGDWwoFjIhHjG"
+	},
+	"logs":{
+		"access":{
+			"filename":"./logs/access.log",
+			"maxsize": 10485760,
+			"maxFiles": 5
+		},
+		"errors":{
+			"filename":"./logs/errors.log",
+			"maxsize": 10485760,
+			"maxFiles": 5
+		}
 	}
 }

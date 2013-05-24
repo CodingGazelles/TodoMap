@@ -7,18 +7,23 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "chai"        : "1.4.x",
     "connect": "2.7.x",
     "connect-mongodb": "1.1.x",
     "crypto": "0.0.3",
     "express": "3.2.x",
-    "googleapis" : "*",
+    "googleapis": "*",
     "jade": "*",
-    "karma"  : "0.8.x",
+    "karma": "0.8.x",
     "less-middleware": "*",
     "mongoose": "3.2.x",
     "nconf": "0.6.x",
-    "underscore": "*"
+    "underscore": "*",
+    "winston" : "0.7.x"
+  },
+  "devDependencies": {
+    "chai": "1.4.x",
+    "forever": "0.10.x",
+    "supervisor": "0.5.x"
   },
   "engines": {
     "node": "0.10.x"

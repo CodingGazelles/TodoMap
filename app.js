@@ -2,12 +2,11 @@
  * Module dependencies.
  */
 var express = require('express'),
-    connect = require('connect'),
     mongoose = require('mongoose'),
     mongoStore = require('connect-mongodb'),
     nconf = require('nconf'),    
-    http = require('http'),
     path = require('path'),
+    winston = require('winston'),
     routes = require('./routes'),
     sessions = require('./routes/sessions'),
     maps = require('./api/maps'),
@@ -23,7 +22,7 @@ nconf.argv()
 var app = express();
 
 app.configure('development', function() {
-    app.set('db-uri', nconf.get('db:uri'));
+    app.use(express.logger('dev'));
     app.use(express.errorHandler({
         dumpExceptions: true,
         showStack: true
@@ -31,16 +30,47 @@ app.configure('development', function() {
 });
 
 app.configure('production', function() {
-    app.set('db-uri', nconf.get('db:uri'));
+    var defineLoggers = function(){
+        var logger = new(winston.Logger)({
+            transports: [
+            new winston.transports.Console(),
+            new winston.transports.File({
+                filename: nconf.get('logs:access:filename'),
+                maxsize: nconf.get('logs:access:maxsize'),
+                maxFiles: nconf.get('logs:access:maxFiles'),
+                json: false
+            })],
+            exceptionHandlers: [
+            new winston.transports.Console(),
+            new winston.transports.File({
+                filename: nconf.get('logs:errors:filename'),
+                maxsize: nconf.get('logs:errors:maxsize'),
+                maxFiles: nconf.get('logs:errors:maxFiles'),
+                json: false
+            })]
+        });
+        var winstonStream = {
+            write: function(message, encoding) {
+                message = message.replace(/(\r\n$|\n$|\r$)/gm, "");
+                logger.info(message);
+            }
+        };
+        return {
+            stream: winstonStream,
+            format: 'default'
+        }
+    }
+    app.use(express.logger(defineLoggers()));
     app.use(express.errorHandler());
 });
 
 app.configure(function() {
+    app.set('db-uri', nconf.get('db:uri'));
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
     app.use(express.favicon());
-    app.use(express.logger('dev'));
+    
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(express.cookieParser(nconf.get('express:cookieParserSecret')));
@@ -127,13 +157,6 @@ app.put('/api/maps/:id', maps.updateById);
 
 
 // Start server
-
-// console.log(app.routes);
-// console.log(routes);
-
- // *    http.createServer(app).listen(80);
- // *    https.createServer({ ... }, app).listen(443);
-
-http.createServer(app).listen(app.get('port'), function() {
-    console.log("Express server listening on port " + app.get('port'));
+app.listen(app.get('port'), function() {
+    console.log("Node server listening on port " + app.get('port'));
 });
